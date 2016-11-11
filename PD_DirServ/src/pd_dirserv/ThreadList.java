@@ -5,6 +5,7 @@
  */
 package pd_dirserv;
 
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -16,18 +17,31 @@ import java.util.Map;
  * @author David
  */
 public class ThreadList extends Thread{
-    
-    Socket socket = null;
+
     DatagramPacket packet = null;
+    public static final int MAX_SIZE = 256;
+    Socket socket = null;
+
     
     public ThreadList(){
         this.socket = socket;
     }
     
+    
     @Override
     public void run(){
+        String msg;
         
-         Map<String,Servers> m = new HashMap<>();
+            packet = new DatagramPacket(new byte[MAX_SIZE], MAX_SIZE);
+        while(true){
+        try{
+        socket.receive(packet);
+        }catch(IOException e){
+            System.out.println("Erro a receber a mensagem : " + e);
+        }
+        msg = new String(packet.getData(), 0, packet.getLength());
+        
+        System.out.println("Connectado a: " + msg);
         
     }
 }
