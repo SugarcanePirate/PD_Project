@@ -5,10 +5,12 @@
  */
 package pd_serv;
 
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
+
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  *
@@ -16,30 +18,43 @@ import java.net.DatagramSocket;
  */
 public class HeartBeatThread extends Thread{
     public static int MAX_SIZE = 1000;
+    InetAddress addr;
     DatagramSocket hbSocket;
     DatagramPacket packet;
-    HeartBeatMsg hbMsg = null;
+    int dirListeningPort;
+    String dirServIP;
+    String hbMsg;
 
-    public HeartBeatThread(DatagramSocket hbSocket, int listeningPort, String name) {
+    public HeartBeatThread(DatagramSocket hbSocket, int servListeningPort, String name, int dirListeningPort, String dirServIP) {
         this.hbSocket = hbSocket;
         this.packet = null;
-        HeartBeatMsg hbMsg = new HeartBeatMsg(name,listeningPort);
+        this.addr = null;
+        hbMsg = name + " " + servListeningPort;
+        this.dirListeningPort = dirListeningPort;
+        this.dirServIP = dirServIP;
     }
     
     public void packetInitialization(){
-        ByteArrayOutputStream byteOutStream;
-        ObjectOutputStream os;
-        packet = new DatagramPacket(new byte[MAX_SIZE], MAX_SIZE);
+        byte[] sendbuf = hbMsg.getBytes();
+        try {
+            addr = InetAddress.getByName(dirServIP);
+        } catch (UnknownHostException e) {
+            System.err.println("Error - " + e);
+        }
+        packet = new DatagramPacket(sendbuf, sendbuf.length, addr, dirListeningPort);
     }
     
     @Override
     public void run(){
+        packetInitialization();
         while(true){
             try {
                 Thread.sleep(30000);
-                
+                hbSocket.send(packet);
             } catch (InterruptedException e) {
                 System.err.println("Error in Heatbeat - " + e);
+            }catch (IOException e){
+                System.err.println("Error sending heart beat - " + e);
             }
         }
     }

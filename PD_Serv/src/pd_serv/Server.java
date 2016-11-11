@@ -17,9 +17,9 @@ public class Server {
     String dirServIP;
     int dirServPort;
 
-    public Server(DatagramSocket hbSocket, String nome, String dirServIP, int dirServPort) {
+    public Server(DatagramSocket hbSocket, String name, String dirServIP, int dirServPort) {
         this.hbSocket = hbSocket;
-        this.name = nome;
+        this.name = name;
         this.dirServIP = dirServIP;
         this.dirServPort = dirServPort;
     }
