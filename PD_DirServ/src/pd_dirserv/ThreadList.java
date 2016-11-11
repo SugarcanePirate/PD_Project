@@ -7,10 +7,9 @@ package pd_dirserv;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.InetAddress;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Scanner;
 
 /**
  *
@@ -21,21 +20,36 @@ public class ThreadList extends Thread{
     DatagramPacket packet = null;
     public static final int MAX_SIZE = 256;
     Socket socket = null;
-
+    InetAddress addr;
+    int dirListeningPort;
+    byte[] buff;
     
     public ThreadList(){
         this.socket = socket;
+        this.packet = null;
+        this.addr = null;
+        this.dirListeningPort = dirListeningPort;
     }
     
     
     @Override
     public void run(){
-        String msg;
+     
         
-            packet = new DatagramPacket(new byte[MAX_SIZE], MAX_SIZE);
+        packet = new DatagramPacket(buff, MAX_SIZE, addr, dirListeningPort);
+        
         while(true){
         try{
+            
+        }
         socket.receive(packet);
+        
+        byte[] data = packet.getData();
+        String hb = new String(data);
+        
+        Scanner scan = new Scanner(hb);
+        
+        
         }catch(IOException e){
             System.out.println("Erro a receber a mensagem : " + e);
         }
