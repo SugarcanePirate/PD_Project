@@ -1,12 +1,15 @@
+package pd_dirserv;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package pd_dirserv;
+
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
@@ -15,47 +18,47 @@ import java.util.Scanner;
  *
  * @author David
  */
-public class ThreadList extends Thread{
+public class HeartBeatReceiver extends Thread{
 
-    DatagramPacket packet = null;
+    DatagramPacket packet;
     public static final int MAX_SIZE = 256;
-    Socket socket = null;
+    DatagramSocket socket;
     InetAddress addr;
     int dirListeningPort;
-    byte[] buff;
     
-    public ThreadList(){
+
+    public HeartBeatReceiver(DatagramPacket packet, DatagramSocket socket, InetAddress addr, int dirListeningPort) {
+        this.packet = packet;
         this.socket = socket;
-        this.packet = null;
-        this.addr = null;
+        this.addr = addr;
         this.dirListeningPort = dirListeningPort;
     }
+    
+   
     
     
     @Override
     public void run(){
-     
+        byte[] buff = null;
+        String name;
+        int port;
         
-        packet = new DatagramPacket(buff, MAX_SIZE, addr, dirListeningPort);
+        packet = new DatagramPacket(buff, MAX_SIZE);
         
         while(true){
         try{
-            
-        }
-        socket.receive(packet);
+             socket.receive(packet);
         
         byte[] data = packet.getData();
+        
         String hb = new String(data);
         
         Scanner scan = new Scanner(hb);
-        
-        
+
         }catch(IOException e){
-            System.out.println("Erro a receber a mensagem : " + e);
+            System.out.println("Error receiving message : " + e);
         }
-        msg = new String(packet.getData(), 0, packet.getLength());
-        
-        System.out.println("Connectado a: " + msg);
-        
+       
+        }
     }
 }
