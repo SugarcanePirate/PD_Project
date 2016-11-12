@@ -1,9 +1,11 @@
+package pd_serv;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package pd_serv;
+
 
 
 import java.io.IOException;
@@ -17,7 +19,7 @@ import java.net.UnknownHostException;
  * @author dvchava
  */
 public class HeartBeatThread extends Thread{
-    public static int MAX_SIZE = 1000;
+    public static int MAX_SIZE = 256;
     InetAddress addr;
     DatagramSocket hbSocket;
     DatagramPacket packet;

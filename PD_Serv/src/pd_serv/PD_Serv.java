@@ -1,9 +1,11 @@
+package pd_serv;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package pd_serv;
+
 
 import java.net.DatagramSocket;
 import java.net.SocketException;
@@ -18,7 +20,8 @@ public class PD_Serv {
      */
     public static void main(String[] args) {
         String name;
-        int listeningPort=-1;
+        int listeningPort=6000;
+        String serverIP;
         String dirServIP;
         DatagramSocket hbSocket = null;
         int dirServPort;
@@ -26,23 +29,28 @@ public class PD_Serv {
         
         
         int argc = args.length;
-        if (argc != 3) {
+        if (argc != 4) {
             System.out.println("Error - Number of arguments...");
             return;
         }
         
         name = args[0];
-        dirServIP = args[1];
-        dirServPort = Integer.parseInt(args[2]);
+        serverIP = args[1];
+        dirServIP = args[2];
+        dirServPort = Integer.parseInt(args[3]);
         
         try {
-            hbSocket = new DatagramSocket();
+            hbSocket = new DatagramSocket(6000);
         } catch (SocketException e) {
             System.err.println("Error creating the heart beat socket - " + e);
             return;
         }
         
-        Server server = new Server(hbSocket, name, dirServIP, dirServPort);
+        Server server = new Server(hbSocket, listeningPort, serverIP, name, dirServIP, dirServPort);
+
+        if(server.connect() == "0")
+            return;
+        
         tHb = new HeartBeatThread(hbSocket, listeningPort, name, dirServPort, dirServIP);
         tHb.start();
         
