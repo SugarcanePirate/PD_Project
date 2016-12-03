@@ -40,7 +40,7 @@ public class PD_Serv {
         dirServPort = Integer.parseInt(args[3]);
         
         try {
-            connSocket = new DatagramSocket(6000);
+            connSocket = new DatagramSocket(dirServPort);
         } catch (SocketException e) {
             System.err.println("Error creating the heart beat socket - " + e);
             return;

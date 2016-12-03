@@ -19,7 +19,7 @@ import java.util.Scanner;
  * @author dvchava
  */
 public class Server {
-    public static int MAX_SIZE = 256;
+    public static int MAX_SIZE = 5000;
     DatagramSocket connSocket; //Heart beat Socket
     String name;
     String serverIP;
