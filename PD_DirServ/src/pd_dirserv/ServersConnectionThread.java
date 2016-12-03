@@ -6,10 +6,13 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /*
@@ -22,84 +25,93 @@ import java.util.Scanner;
  *
  * @author David
  */
-public class ServersConnectionThread extends Thread{
-   public static final int MAX_SIZE = 256;
-   int dirServPort;
-    String dirServIP;
-    DatagramSocket socket;
-    Map<String,Server> serverList;
+public class ServersConnectionThread extends Thread {
 
-    public ServersConnectionThread(DatagramSocket socket,String dirServIP,int dirServPort,Map<String,Server> serverList) {
-        this.socket = socket;
+    public final static int PORT_UDP_CONN = 6000;
+    public final static int PORT_UDP_HB = 6001;
+    public static final int MAX_SIZE = 256;
+    int servPort;
+    String dirServIP;
+    DatagramSocket socket = null;
+    Map<String, Server> serverList;
+
+    public ServersConnectionThread(String dirServIP, int servPort, Map<String, Server> serverList) {
+
         this.dirServIP = dirServIP;
-        this.dirServPort = dirServPort;
+        this.servPort = servPort;
         this.serverList = serverList;
     }
-    
- 
-     
+
     @Override
     public void run() {
-        String connected = "0";
+        String connected = "";
         byte[] buff = new byte[MAX_SIZE];
         String ip;
         DatagramPacket packetToSend = null;
         DatagramPacket packetToReceive;
         String name;
         int port;
-        InetAddress addr=null;
+        InetAddress addr = null;
         
-        packetToReceive = new DatagramPacket(buff, MAX_SIZE);
-        while(true){
-        try{
-            System.out.println("Receiving packet");
-             socket.receive(packetToReceive);
-        System.out.println("waiting");
-        }catch(IOException e){
-            System.out.println("Erro a receber a mensagem : " + e);
-        }
-                
-            
-        
-        byte[] data = packetToReceive.getData();
-        
-        String hb = new String(data);
-        
-        Scanner scan = new Scanner(hb);
-        
-        name = scan.next();
-        port = scan.nextInt();
-        ip = scan.next();
-        
-        if(!serverList.containsKey(name)){
-            serverList.put(name, new Server(socket,name,ip,port));
-            connected = "1";
-        }
-                    
-        
-        byte[] sendBuffer = connected.getBytes();
-        try {
-            addr = InetAddress.getByName(ip);
-        } catch (UnknownHostException e) {
-            System.err.println("Error - " + e);
-        }
+         try {
+
+                socket = new DatagramSocket(PORT_UDP_CONN);
+
+            } catch (SocketException e) {
+                System.err.println("Error - "+e);
+            }
+
+        while (true) {
+           
+
+            packetToReceive = new DatagramPacket(buff, MAX_SIZE);
+            connected = "0";  // define conneçao para nome de servidor de volta a 0
+
+            try {
+                System.out.println("Waiting for packet");
+                socket.receive(packetToReceive);
+            } catch (IOException e) {
+                System.out.println("Erro a receber a mensagem : " + e);
+            }
+            System.out.println("Packet received");
+
+            byte[] data = packetToReceive.getData();  //recebe nome do servidor e os dados ip/porto
+
+            String hb = new String(data);
+
+            Scanner scan = new Scanner(hb);
+
+            name = scan.next();
+            port = scan.nextInt();
+            ip = scan.next();
+            if (!serverList.containsKey(name)) {      //verifica se ja existe servidor com mesmo nome,
+                serverList.put(name, new Server(name, ip, port));
+                connected = 1 + " " + PORT_UDP_HB;
+            }
+
+            byte[] sendBuffer = connected.getBytes();
+            try {
+                addr = InetAddress.getByName(ip);
+            } catch (UnknownHostException e) {
+                System.err.println("Error - " + e);
+            }
 
             System.out.println("Sending Packet");
-        
-        packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, dirServPort);
 
-        try {
-            System.out.println("Sending name and listening port...");
-            socket.send(packetToSend);
-        } catch (IOException e) {
-            System.err.println("Error sending the name and listening port... - " + e);
-        }
-        
+            packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, PORT_UDP_CONN);  // envia ao servidor uma string a dizer se ja existe o nome
+            
+            try {
+                System.out.println("Sending confirmation");
+                socket.send(packetToSend);
+            } catch (IOException e) {
+                System.err.println("Error sending the name and listening port... - " + e);
+            }
+            new HeartBeatReceiver(serverList.get(name)).start();
 //        msg = new String(packetToReceive.getData(), 0, packetToReceive.getLength());
 //        
 //        System.out.println("Confirming connection to: " + msg);
 //        
         }
     }
-    
+
 }

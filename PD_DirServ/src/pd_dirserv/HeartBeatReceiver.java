@@ -11,27 +11,28 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import static pd_dirserv.ServersConnectionThread.MAX_SIZE;
 
 /**
  *
  * @author David
  */
 public class HeartBeatReceiver extends Thread{
-
-    DatagramPacket packet;
+    public static final int TIMEOUT = 31000;
+  public final static int HB_PORT = 6001;
     public static final int MAX_SIZE = 256;
-    DatagramSocket socket;
-    InetAddress addr;
-    int dirListeningPort;
+    DatagramSocket socket =null;
+    Server server;
     
 
-    public HeartBeatReceiver(DatagramPacket packet, DatagramSocket socket, InetAddress addr, int dirListeningPort) {
-        this.packet = packet;
-        this.socket = socket;
-        this.addr = addr;
-        this.dirListeningPort = dirListeningPort;
+    public HeartBeatReceiver(Server server) {
+
+        this.server = server;
     }
     
    
@@ -39,26 +40,46 @@ public class HeartBeatReceiver extends Thread{
     
     @Override
     public void run(){
-        byte[] buff = null;
+        byte[] buff = new byte[MAX_SIZE];
         String name;
         int port;
+        InetAddress addr;
+        DatagramPacket packetToReceive;
+        DatagramPacket packetToSend;
         
-        packet = new DatagramPacket(buff, MAX_SIZE);
+         
+        try {
+            socket = new DatagramSocket(HB_PORT);
+            server.setHbSocket(socket);
+        } catch (SocketException ex) {
+            Logger.getLogger(HeartBeatReceiver.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
+        packetToReceive = new DatagramPacket(buff, MAX_SIZE);
+        try {
+            socket.setSoTimeout(TIMEOUT);
+        } catch (SocketException ex) {
+            Logger.getLogger(HeartBeatReceiver.class.getName()).log(Level.SEVERE, null, ex);
+        }
         while(true){
         try{
-             socket.receive(packet);
-        
-        byte[] data = packet.getData();
-        
-        String hb = new String(data);
-        
-        Scanner scan = new Scanner(hb);
+            System.out.println("Receiving Heartbeat...");
+            
+            socket.receive(packetToReceive);
+            System.out.println("Heartbeat active!");
 
+        }catch(SocketTimeoutException e){
+            System.err.println("Heartbeat Timeout - " +e);
+            
+            break;
         }catch(IOException e){
             System.out.println("Error receiving message : " + e);
         }
-       
+               
         }
+        
+        System.out.println("Heartbeat dead...");
+        
+        
     }
 }

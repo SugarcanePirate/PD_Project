@@ -14,16 +14,24 @@ import java.net.DatagramSocket;
  * @author dvchava
  */
 public class Server {
-    DatagramSocket hbSocket; //Heart beat Socket
+    DatagramSocket hbSocket=null; //Heart beat Socket
     String name;
     String ip;
     int port;
+    Thread thb;
 
-    public Server(DatagramSocket hbSocket, String name, String ip, int port) {
-        this.hbSocket = hbSocket;
+    public Server(String name, String ip, int port) {
         this.name = name;
         this.ip = ip;
         this.port = port;
+    }
+
+    public Thread getThb() {
+        return thb;
+    }
+
+    public void setThb(Thread thb) {
+        this.thb = thb;
     }
 
     public String getName() {
@@ -32,6 +40,10 @@ public class Server {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setHbSocket(DatagramSocket hbSocket) {
+        this.hbSocket = hbSocket;
     }
 
     public DatagramSocket getHbSocket() {

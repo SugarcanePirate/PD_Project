@@ -24,19 +24,14 @@ public class PD_DirServ {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        String ip = " 192.168.1.116";
+        String ip = "192.168.1.116";
         Map<String,Server> serverList = new HashMap<>();
-        DatagramSocket socket = null;
+        
         String name;
-        int listeningPort=-1;
         Thread sct;
         
-        try {
-            socket = new DatagramSocket(6000);
-        } catch (SocketException ex) {
-            Logger.getLogger(PD_DirServ.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        sct = new ServersConnectionThread(socket,ip,PORT,serverList);
+        
+        sct = new ServersConnectionThread(ip,PORT,serverList);
         sct.start();
         
     }
