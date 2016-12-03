@@ -68,12 +68,12 @@ public class ServersConnectionThread extends Thread {
             connected = "0";  // define conneçao para nome de servidor de volta a 0
 
             try {
-                System.out.println("Waiting for packet");
+                System.out.println("Waiting for servers");
                 socket.receive(packetToReceive);
             } catch (IOException e) {
                 System.out.println("Erro a receber a mensagem : " + e);
             }
-            System.out.println("Packet received");
+            System.out.println("server found");
 
             byte[] data = packetToReceive.getData();  //recebe nome do servidor e os dados ip/porto
 

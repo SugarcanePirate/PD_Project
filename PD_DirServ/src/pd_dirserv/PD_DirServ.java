@@ -7,19 +7,16 @@ package pd_dirserv;
  */
 
 
-import java.net.DatagramSocket;
-import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author David
  */
 public class PD_DirServ {
-    public final static int PORT = 6000;
+    public final static int PORT_Conn_Serv = 6000;
+     public final static int PORT_Conn_Client = 6002;
     /**
      * @param args the command line arguments
      */
@@ -28,12 +25,14 @@ public class PD_DirServ {
         Map<String,Server> serverList = new HashMap<>();
         
         String name;
-        Thread sct;
+        Thread serverconnection;
+        Thread clientconnection;
         
         
-        sct = new ServersConnectionThread(ip,PORT,serverList);
-        sct.start();
-        
+        serverconnection = new ServersConnectionThread(ip,PORT_Conn_Serv,serverList);
+        serverconnection.start();
+        clientconnection = new ClientsConnectionThread(ip,PORT_Conn_Client,serverList);
+        clientconnection.start();
     }
     
 }
