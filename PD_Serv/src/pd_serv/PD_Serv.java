@@ -20,10 +20,10 @@ public class PD_Serv {
      */
     public static void main(String[] args) {
         String name;
-        int listeningPort=6000;
-        String serverIP;
+        int myTCP_PORT=6003;
+        String myServerIP;
         String dirServIP;
-        DatagramSocket hbSocket = null;
+        DatagramSocket connSocket = null;
         int dirServPort;
         Thread tHb; // Thread heart beat
         
@@ -35,23 +35,24 @@ public class PD_Serv {
         }
         
         name = args[0];
-        serverIP = args[1];
+        myServerIP = args[1];
         dirServIP = args[2];
         dirServPort = Integer.parseInt(args[3]);
         
         try {
-            hbSocket = new DatagramSocket(6000);
+            connSocket = new DatagramSocket(6000);
         } catch (SocketException e) {
             System.err.println("Error creating the heart beat socket - " + e);
             return;
         }
         
-        Server server = new Server(hbSocket, listeningPort, serverIP, name, dirServIP, dirServPort);
+        Server server = new Server(connSocket, myTCP_PORT, myServerIP, name, dirServIP, dirServPort);
 
-        if(server.connect() == "0")
+        if(server.connect().equals("0"))
             return;
         
-        tHb = new HeartBeatThread(hbSocket, listeningPort, name, dirServPort, dirServIP);
+        server.setActive(true);
+        tHb = new HeartBeatThread(myTCP_PORT, name, dirServIP, server.getPORT_HB());
         tHb.start();
         
     }

@@ -12,8 +12,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Scanner;
 
 /**
  *
@@ -21,20 +20,22 @@ import java.util.logging.Logger;
  */
 public class Server {
     public static int MAX_SIZE = 256;
-    DatagramSocket hbSocket; //Heart beat Socket
+    DatagramSocket connSocket; //Heart beat Socket
     String name;
     String serverIP;
-    int servListeningPort;
+    int myTCP_PORT;
+    int PORT_HB;
     String dirServIP;
     int dirServPort;
+    boolean active = false;
 
-    public Server(DatagramSocket hbSocket, int servListeningPort, String serverIP, String name, String dirServIP, int dirServPort) {
-        this.hbSocket = hbSocket;
+    public Server(DatagramSocket connSocket, int myTCP_PORT, String serverIP, String name, String dirServIP, int dirServPort) {
+        this.connSocket = connSocket;
         this.name = name;
         this.serverIP = serverIP;
         this.dirServIP = dirServIP;
         this.dirServPort = dirServPort;
-        this.servListeningPort = servListeningPort;
+        this.myTCP_PORT = myTCP_PORT;
     }
 
     public String getName() {
@@ -45,16 +46,16 @@ public class Server {
         this.name = name;
     }
 
-    public int getServListeningPort() {
-        return servListeningPort;
+    public int getMyTCP_PORT() {
+        return myTCP_PORT;
     }
 
-    public void setServListeningPort(int servListeningPort) {
-        this.servListeningPort = servListeningPort;
+    public void setMyTCP_PORT(int myTCP_PORT) {
+        this.myTCP_PORT = myTCP_PORT;
     }
 
-    public DatagramSocket getHbSocket() {
-        return hbSocket;
+    public DatagramSocket getConnSocket() {
+        return connSocket;
     }
 
     public String getDirServIP() {
@@ -73,6 +74,15 @@ public class Server {
         this.dirServPort = dirServPort;
     }
 
+    public int getPORT_HB() {
+        return PORT_HB;
+    }
+
+    public void setPORT_HB(int PORT_HB) {
+        this.PORT_HB = PORT_HB;
+    }
+    
+
     public String connect() {
         DatagramPacket packetToSend = null;
         DatagramPacket packetToReceive = null;
@@ -80,7 +90,7 @@ public class Server {
         InetAddress addr = null;
 
         // Asking to connect
-        String msg = name + " " + servListeningPort + " " + serverIP;
+        String msg = name + " " + myTCP_PORT + " " + serverIP;
 
         System.out.println("Asking directory server to connect...");
 
@@ -95,7 +105,7 @@ public class Server {
 
         try {
             System.out.println("Sending name and listening port...");
-            hbSocket.send(packetToSend);
+            connSocket.send(packetToSend);
         } catch (IOException e) {
             System.err.println("Error sending the name and listening port... - " + e);
         }
@@ -105,12 +115,26 @@ public class Server {
         packetToReceive = new DatagramPacket(recvBuffer, MAX_SIZE);
         try {
             System.out.println("Receiving answer...");
-            hbSocket.receive(packetToReceive);
+            connSocket.receive(packetToReceive);
         } catch (IOException e) {
             System.err.println("Error receiving answer... - " + e);
         }
-        String nameExists = new String(packetToReceive.getData());
-        System.out.println("Answer: " + nameExists);
-        return nameExists;
+        
+        String answer = new String(packetToReceive.getData());
+        answer = answer.trim();
+        String[] answers = answer.split(" ");
+        String connected = answers[0];
+        PORT_HB = Integer.parseInt(answers[1]);
+        System.out.println("Answer: " + answer);
+        
+        return connected;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

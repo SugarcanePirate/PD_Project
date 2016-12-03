@@ -12,7 +12,10 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -22,17 +25,21 @@ public class HeartBeatThread extends Thread{
     public static int MAX_SIZE = 256;
     InetAddress addr;
     DatagramSocket hbSocket;
+    int PORT_HB;
     DatagramPacket packet;
-    int dirListeningPort;
     String dirServIP;
     String hbMsg;
 
-    public HeartBeatThread(DatagramSocket hbSocket, int servListeningPort, String name, int dirListeningPort, String dirServIP) {
-        this.hbSocket = hbSocket;
+    public HeartBeatThread(int servListeningPort, String name, String dirServIP, int PORT_HB) {
+        try {
+            this.hbSocket = new DatagramSocket();
+        } catch (SocketException ex) {
+            Logger.getLogger(HeartBeatThread.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        this.PORT_HB = PORT_HB;
         this.packet = null;
         this.addr = null;
         hbMsg = name + " " + servListeningPort;
-        this.dirListeningPort = dirListeningPort;
         this.dirServIP = dirServIP;
     }
     
@@ -43,7 +50,7 @@ public class HeartBeatThread extends Thread{
         } catch (UnknownHostException e) {
             System.err.println("Error - " + e);
         }
-        packet = new DatagramPacket(sendbuf, sendbuf.length, addr, dirListeningPort);
+        packet = new DatagramPacket(sendbuf, sendbuf.length, addr, PORT_HB);
     }
     
     @Override
@@ -52,7 +59,9 @@ public class HeartBeatThread extends Thread{
         while(true){
             try {
                 Thread.sleep(30000);
+                System.out.println("Sending HearBeat...");
                 hbSocket.send(packet);
+                System.out.println("HearBeat sended...");
             } catch (InterruptedException e) {
                 System.err.println("Error in Heatbeat - " + e);
             }catch (IOException e){
