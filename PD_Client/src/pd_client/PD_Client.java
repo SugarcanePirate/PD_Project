@@ -7,12 +7,27 @@ package pd_client;
 
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.util.Arrays;
 
 /**
  *
  * @author David
  */
 public class PD_Client {
+    
+    public final static void clearConsole() {
+        char c = '\n';
+        int length = 25;
+        char[] chars = new char[length];
+        Arrays.fill(chars, c);
+        System.out.print(String.valueOf(chars));
+    }
+    
+    public static void printServerList(String[] list){
+        for(int i = 0; i < list.length; i++){
+            System.out.println(list[i]);
+        }
+    }
 
     /**
      * @param args the command line arguments
@@ -35,11 +50,7 @@ public class PD_Client {
         Client client = new Client(connSocket, dirServIP, dirServPort);
         
         String[] serverList = client.connect();
-        if(serverList != null){
-        for(int i = 0; i < serverList.length; i++)
-            System.out.println(serverList[i]);
-        
-        }
-    }
-    
+        clearConsole();
+        printServerList(serverList);
+}
 }

@@ -9,11 +9,20 @@ package pd_serv;
 
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.util.Arrays;
 /**
  *
  * @author David
  */
 public class PD_Serv {
+    
+    public final static void clearConsole() {
+        char c = '\n';
+        int length = 25;
+        char[] chars = new char[length];
+        Arrays.fill(chars, c);
+        System.out.print(String.valueOf(chars));
+    }
 
     /**
      * @param args the command line arguments
