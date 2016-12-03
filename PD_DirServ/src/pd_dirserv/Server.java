@@ -42,6 +42,22 @@ public class Server {
         this.name = name;
     }
 
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
     public void setHbSocket(DatagramSocket hbSocket) {
         this.hbSocket = hbSocket;
     }
