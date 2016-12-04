@@ -91,7 +91,7 @@ public class ClientsConnectionThread extends Thread{
             name = scan.next();
             clientIp = scan.next();
             
-            if (!clientList.contains(name)) {      //verifica se ja existe servidor com mesmo nome,
+            if (!clientList.contains(name)) {      //verifica se ja existe user com mesmo nome, se não existir adiciona
                 clientList.add(name);
                 connected = 1 + " ";
             }
@@ -112,7 +112,7 @@ public class ClientsConnectionThread extends Thread{
             os.writeObject(getServerList());
             os.flush();
             byte[] sendBuffer = byteArray.toByteArray();
-                        packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, PORT_UDP_CONN);  // envia ao servidor uma string a dizer se ja existe o nome
+                        packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, PORT_UDP_CONN);  // envia ao cliente a lista de servidores
             socketToClient.send(packetToSend);
             os.close();
             System.out.println("Server list sent");
@@ -137,7 +137,7 @@ public class ClientsConnectionThread extends Thread{
     String[] list = new String[serverList.size()];
     for(String key: serverList.keySet()){
         Server s = serverList.get(key);
-        list[i] = s.getName() + " " + s.getIp() + " " + s.getPort();
+        list[i] = " " + s.getName() + " " + s.getIp() + " " + s.getPort();
         i++;
     }
     return list;

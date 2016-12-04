@@ -9,6 +9,7 @@ package pd_serv;
 
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.Arrays;
 /**
  *
@@ -32,9 +33,11 @@ public class PD_Serv {
         int myTCP_PORT=6003;
         String myServerIP;
         String dirServIP;
+        ArrayList <ClientData> client = new ArrayList<>();
         DatagramSocket connSocket = null;
         int dirServPort;
         Thread tHb; // Thread heart beat
+        Thread ct; // Thread clientes
         
         
         int argc = args.length;
@@ -63,6 +66,8 @@ public class PD_Serv {
         server.setActive(true);
         tHb = new HeartBeatThread(myTCP_PORT, name, dirServIP, server.getPORT_HB());
         tHb.start();
+        ct = new ClientEchoServer(client);
+        ct.start();
         
     }
     
