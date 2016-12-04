@@ -16,10 +16,10 @@ import java.net.Socket;
  *
  * @author David
  */
-public class ClientEchoThread extends Thread {
+public class EchoThread extends Thread {
     protected Socket socket;
 
-    public ClientEchoThread(Socket clientSocket) {
+    public EchoThread(Socket clientSocket) {
         this.socket = clientSocket;
     }
 
