@@ -9,32 +9,45 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author dvchava
  */
-public class Client {
+public class Client implements ClientOperations{
     public static int MAX_SIZE = 5000;
-    DatagramSocket connSocket;
+    DatagramSocket connSocket = null;
+    ArrayList<Socket> serverSockets = null;
     String dirServIP;
     int dirServPort;
+    ObjectOutputStream oos = null;
+    ObjectInputStream ois = null;
     
     String username;
+    String pass;
+    
+    String[] serverList = null;
+    
 
-    public Client(DatagramSocket connSocket, String dirServIP, int dirServPort) {
-        this.connSocket = connSocket;
+    
+    public Client(String username, String dirServIP, int dirServPort) {
+        this.username = username;
         this.dirServIP = dirServIP;
         this.dirServPort = dirServPort;
+        this.serverSockets = new ArrayList<>();
     }
 
     public DatagramSocket getConnSocket() {
@@ -69,10 +82,11 @@ public class Client {
         this.username = username;
     }
     
-    public String[] connect(){
+    public String[] getServerList(){ return serverList; }
+    
+    @Override
+    public void connect(){
         String myIp = getLocalIpAddress();
-        Scanner scan = new Scanner(System.in);
-        String[] serverList = null;
         
         DatagramPacket packetToSend = null;
         DatagramPacket packetToReceive = null;
@@ -80,44 +94,74 @@ public class Client {
         ObjectInputStream is = null;
         InetAddress addr = null;
         
-        
-        System.out.println("Asking directory server to connect...");
+        try {
+            connSocket = new DatagramSocket(dirServPort);
 
-        try {
+            System.out.println("Asking directory server to connect...");
+
             addr = InetAddress.getByName(dirServIP);
-        } catch (UnknownHostException e) {
-            System.err.println("Error - " + e);
-        }
-        System.out.print("Username: ");
-        username = scan.nextLine();
-        String msg = username + " " + myIp;
-        byte[] sendBuffer = msg.getBytes();
-        packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, dirServPort);
-        
-        try {
+
+            String msg = username + " " + myIp;
+            
+            byte[] sendBuffer = msg.getBytes();
+            packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, dirServPort);
             System.out.println("Sending username...");
             connSocket.send(packetToSend);
-        } catch (IOException e) {
-            System.err.println("Error sending the name and listening port... - " + e);
-        }
-        byte[] recvBuffer = new byte[MAX_SIZE];
-        packetToReceive = new DatagramPacket(recvBuffer, MAX_SIZE);
-        
-        try {
+
+            byte[] recvBuffer = new byte[MAX_SIZE];
+            packetToReceive = new DatagramPacket(recvBuffer, MAX_SIZE);
             System.out.println("Receiving server List...");
             connSocket.receive(packetToReceive);
             System.out.println("Server List received...");
             byteStream = new ByteArrayInputStream(recvBuffer);
             is = new ObjectInputStream(new BufferedInputStream(byteStream));
-            serverList = (String[])is.readObject();
+            
+            serverList = (String[]) is.readObject();
             System.out.println("Server List received...");
             is.close();
-        } catch (IOException e) {
-            System.err.println("Error receiving the answer... - " + e);
+            
+        } catch (SocketException e) {
+            System.err.println("Error creating the heart beat socket - " + e);
         }catch (ClassNotFoundException e) {
             System.err.println("Error receiving the list... - " + e);
+        } catch (UnknownHostException e) {
+            System.err.println("Error - " + e);
+        }catch (IOException e) {
+            System.err.println("Error sending/receiving the answer... - " + e);
         }
-        return serverList;
+        
+    }
+    
+    @Override
+    public boolean register(String pass, String server){
+        Socket s = null;
+        boolean registered = false;
+        server = server.trim();
+        String[] serverData = server.split(" ");
+        String clientData = username + " " + pass;
+        String serverIp = serverData[1];
+        int serverPort = Integer.parseInt(serverData[2]);
+        
+        try {
+            s = new Socket(serverIp, serverPort);
+            oos = new ObjectOutputStream( s.getOutputStream() );
+            ois = new ObjectInputStream( s.getInputStream() );
+            
+            oos.flush();
+            oos.writeObject(clientData);
+            oos.flush();
+            
+            registered = (Boolean)ois.readObject();
+            
+        } catch (IOException ex) {
+            System.out.println("Error - Connecting to socket (Server: '" + serverIp + "').");
+            return false;
+        } catch (ClassNotFoundException ex) {
+            System.out.println("Error - reading answer (Server: '" + serverIp + "').");
+            return false;
+        }
+        
+        return registered;
     }
     
     public String getLocalIpAddress() {
