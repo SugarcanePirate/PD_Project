@@ -11,5 +11,9 @@ package pd_client;
  */
 public interface ClientOperations {
     public void connect();
-    public boolean register(String pass, String server);
+    public boolean register(String pass, int server);
+    public boolean login(String username, String password);
+    public boolean logout();
+    public String[] getDirContent();
+    public String getDirPath();
 }

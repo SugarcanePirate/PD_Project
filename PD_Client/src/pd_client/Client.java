@@ -133,11 +133,14 @@ public class Client implements ClientOperations{
     }
     
     @Override
-    public boolean register(String pass, String server){
+    public boolean register(String pass, int server){
         Socket s = null;
         boolean registered = false;
-        server = server.trim();
-        String[] serverData = server.split(" ");
+        
+        String serverLine = serverList[server-1];
+        serverLine = serverLine.trim();
+        String[] serverData = serverLine.split(" ");
+        
         String clientData = username + " " + pass;
         String serverIp = serverData[1];
         int serverPort = Integer.parseInt(serverData[2]);
@@ -155,13 +158,107 @@ public class Client implements ClientOperations{
             
         } catch (IOException ex) {
             System.out.println("Error - Connecting to socket (Server: '" + serverIp + "').");
-            return false;
+            registered = false;
         } catch (ClassNotFoundException ex) {
             System.out.println("Error - reading answer (Server: '" + serverIp + "').");
-            return false;
+            registered = false;
         }
         
         return registered;
+    }
+    
+    @Override
+    public boolean login(String username, String password){
+        boolean logged = false;
+        String msg = "LOG " + username + " " + password;
+        
+       
+        try {
+            oos.flush();
+            oos.writeObject(msg);
+            oos.flush();
+            
+            logged = (Boolean)ois.readObject();
+            
+        } catch (IOException e) {
+            System.out.println("Error - Writing login data! " + e);
+            logged = false;
+        } catch (ClassNotFoundException e) {
+            System.out.println("Error - Reading server answer! " + e);
+            logged = false;
+        }
+        
+        
+        return logged;
+    }
+    
+    @Override
+    public boolean logout(){
+        boolean loggedOut = false;
+        
+        String msg = "OUT " + username;
+        
+       
+        try {
+            oos.flush();
+            oos.writeObject(msg);
+            oos.flush();
+            
+            loggedOut = (Boolean)ois.readObject();
+            
+        } catch (IOException e) {
+            System.out.println("Error - Writing login data! " + e);
+            loggedOut = false;
+        } catch (ClassNotFoundException e) {
+            System.out.println("Error - Reading server answer! " + e);
+            loggedOut = false;
+        }
+        
+        return loggedOut;
+    }
+    
+    @Override
+    public String[] getDirContent(){
+        String msg = "DIRCNT";
+        String[] cnt = null;
+       
+        try {
+            oos.flush();
+            oos.writeObject(msg);
+            oos.flush();
+            
+            cnt = (String[])ois.readObject();
+            
+        } catch (IOException e) {
+            System.out.println("Error - Writing login data! " + e);
+            cnt = null;
+        } catch (ClassNotFoundException e) {
+            System.out.println("Error - Reading server answer! " + e);
+            cnt = null;
+        }
+        return cnt;
+    }
+    
+    @Override
+    public String getDirPath(){
+        String msg = "DIRPTH";
+        String path = null;
+       
+        try {
+            oos.flush();
+            oos.writeObject(msg);
+            oos.flush();
+            
+            path = (String)ois.readObject();
+            
+        } catch (IOException e) {
+            System.out.println("Error - Writing login data! " + e);
+            path = null;
+        } catch (ClassNotFoundException e) {
+            System.out.println("Error - Reading server answer! " + e);
+            path = null;
+        }
+        return path;
     }
     
     public String getLocalIpAddress() {
