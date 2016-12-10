@@ -67,7 +67,7 @@ public class PD_Serv {
         server.setActive(true);
         tHb = new HeartBeatThread(myTCP_PORT, name, dirServIP, server.getPORT_HB());
         tHb.start();
-        ct = new ClientThreadEchoServer(client);
+        ct = new ClientThreadEchoServer(client,server.getName());
         ct.start();
         
     }

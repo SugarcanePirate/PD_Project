@@ -6,6 +6,7 @@
 package pd_serv;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
@@ -15,6 +16,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -27,12 +30,33 @@ public class ClientThreadEchoServer extends Thread{
         ServerSocket serverSocket = null;
         Socket socket = null;
         static final int PORT = 6003;
+        String servName;
+        
 
-    public ClientThreadEchoServer(Map <String,ClientData> client) {
+    public ClientThreadEchoServer(Map <String,ClientData> client, String servName) {
         this.clientdata = client;
+        this.servName=servName;
     }
      
 
+     public String makeClientDir(String cliName) {
+        String nomeDirectoria = System.getProperty("user.dir");
+
+        nomeDirectoria = nomeDirectoria + File.separator + servName + File.separator + cliName;
+
+        File directoria = new File(nomeDirectoria);
+
+        if (!directoria.exists()) {
+            try {
+                directoria.mkdir();
+            } catch (Exception e) {
+                return "";
+            }
+            
+    }
+        return nomeDirectoria;
+ }
+    
  public void run() {
   
     ServerSocket serverSocket = null;
@@ -40,7 +64,8 @@ public class ClientThreadEchoServer extends Thread{
     String name,password=null;
     String connected=null;
     Object ob;
-    BufferedReader in;
+    boolean registered=false;
+    
     String data;
     
         try {
@@ -51,28 +76,52 @@ public class ClientThreadEchoServer extends Thread{
         }
         while (true) {
             try {
+                registered=false;
                 socket = serverSocket.accept();
                 
                 
                 oos = new ObjectOutputStream( socket.getOutputStream() );
-                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                ois = new ObjectInputStream(socket.getInputStream());
 
+                System.out.println("Client socket open" );
                 
-                data = in.readLine();
+                data = (String)ois.readObject();
                 Scanner scan = new Scanner(data);
                 name = scan.next();
                 password = scan.next();
 
-                if (!clientdata.containsKey(name)) {      //verifica se ja existe cliente com o mesmo nome
+                if (!clientdata.containsKey(name)) {   
+                    //verifica se ja existe cliente com o mesmo nome
                 clientdata.put(name,new ClientData(name, password));
-                connected = 1 + " " ;
+                            // nova thread para cada cliente
+                clientdata.get(name).setHomeDir(makeClientDir(name));
+                clientdata.get(name).setCurrentDir(clientdata.get(name).getHomeDir());
+                registered = true;
+                
+
+                
+                System.out.println("Client arrived:" + name);
+                 
             }
-          
+                oos.flush();
+                oos.writeObject(registered);
+                oos.flush();
+                
+                
+                
+                if(!registered)
+                System.out.println("Client denied:" + name);
+                else{
+               Thread t = new EchoThread(socket,clientdata,oos,ois,clientdata.get(name));
+               t.start();
+                }
+                
             } catch (IOException e) {
                 System.out.println("I/O error: " + e);
-            }
-            // nova thread para cada cliente
-            new EchoThread(socket).start();
+            } catch (ClassNotFoundException ex) {
+            Logger.getLogger(ClientThreadEchoServer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
             
         }
     }

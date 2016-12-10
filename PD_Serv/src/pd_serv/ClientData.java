@@ -12,6 +12,23 @@ package pd_serv;
 public class ClientData {
     String name;
     String password;
+    String homeDir,currentDir;
+
+    public String getHomeDir() {
+        return homeDir;
+    }
+
+    public void setHomeDir(String homeDir) {
+        this.homeDir = homeDir;
+    }
+
+    public String getCurrentDir() {
+        return currentDir;
+    }
+
+    public void setCurrentDir(String currentDir) {
+        this.currentDir = currentDir;
+    }
 
     public ClientData(String name, String password) {
         this.name = name;

@@ -7,6 +7,7 @@ package pd_serv;
  */
 
 
+import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -82,6 +83,26 @@ public class Server {
         this.PORT_HB = PORT_HB;
     }
     
+    public int makeHomeDir() {
+        String nomeDirectoria = System.getProperty("user.dir");
+
+        nomeDirectoria = nomeDirectoria + File.separator + name;
+
+        File directoria = new File(nomeDirectoria);
+
+        if (!directoria.exists()) {
+            try {
+                directoria.mkdir();
+            } catch (Exception e) {
+                return -1;
+            }
+        } else {
+            return 0;
+        }
+
+        return 1;
+    }
+    
 
     public String connect() {
         DatagramPacket packetToSend = null;
@@ -126,6 +147,9 @@ public class Server {
         String connected = answers[0];
         PORT_HB = Integer.parseInt(answers[1]);
         System.out.println("Answer: " + answer);
+        if(connected.equals("1"))
+            makeHomeDir();
+            
         
         return connected;
     }
