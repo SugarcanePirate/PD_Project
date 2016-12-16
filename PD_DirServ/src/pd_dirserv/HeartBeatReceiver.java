@@ -13,10 +13,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static pd_dirserv.ServersConnectionThread.MAX_SIZE;
 
 /**
  *

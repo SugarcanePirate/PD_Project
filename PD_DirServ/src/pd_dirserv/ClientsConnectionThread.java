@@ -57,29 +57,18 @@ public class ClientsConnectionThread extends Thread{
         ByteArrayOutputStream byteArray = null;
         ObjectOutputStream os = null;
         
-         
-        try {
-            socketToClient = new DatagramSocket(myPort);
-        } catch (SocketException ex) {
-            Logger.getLogger(HeartBeatReceiver.class.getName()).log(Level.SEVERE, null, ex);
-        }
         
         packetToReceive = new DatagramPacket(buff, MAX_SIZE);
      
         while(true){
         try{
+            socketToClient = new DatagramSocket(myPort);
+            
             System.out.println("Waiting for clients");
             
             socketToClient.receive(packetToReceive);
             System.out.println("Client arrived");
             
-            break;
-        }catch(IOException e){
-            System.out.println("Error receiving message : " + e);
-        }
-               
-        }
-        
             byte[] data = packetToReceive.getData();  //recebe nome do servidor e os dados ip/porto
 
              System.out.println("Reading client data");
@@ -98,14 +87,9 @@ public class ClientsConnectionThread extends Thread{
             
             
             
-            try {
+            
                 addr = InetAddress.getByName(clientIp);
-            } catch (UnknownHostException e) {
-                System.err.println("Error - " + e);
-            }
-
-           
-        try {
+            
              byteArray = new ByteArrayOutputStream(MAX_SIZE);
             os = new ObjectOutputStream(new BufferedOutputStream(byteArray));
             os.flush();
@@ -117,9 +101,7 @@ public class ClientsConnectionThread extends Thread{
             os.close();
             System.out.println("Server list sent");
             
-        } catch (IOException ex) {
-            Logger.getLogger(ClientsConnectionThread.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        
             
             
             
@@ -127,6 +109,20 @@ public class ClientsConnectionThread extends Thread{
 
             System.out.println("Sending Packet");
 
+            
+        }catch (UnknownHostException e) {
+                System.err.println("Error - " + e);
+            }catch(IOException e){
+            System.out.println("Error receiving message : " + e);
+        }
+               
+        }
+        
+            
+
+           
+        
+           
 
             
           
