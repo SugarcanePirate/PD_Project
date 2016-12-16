@@ -16,4 +16,8 @@ public interface ClientOperations {
     public boolean logout();
     public String[] getDirContent();
     public String getDirPath();
+    public boolean makeDir(String dirName);
+    public boolean changeDir(String dirName);
+    public String[] getFileContent(String fileName);
+    public boolean removeFile(String fileName);
 }

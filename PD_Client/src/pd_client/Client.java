@@ -207,7 +207,7 @@ public class Client implements ClientOperations{
             loggedOut = (Boolean)ois.readObject();
             
         } catch (IOException e) {
-            System.out.println("Error - Writing login data! " + e);
+            System.out.println("Error - Writing command! " + e);
             loggedOut = false;
         } catch (ClassNotFoundException e) {
             System.out.println("Error - Reading server answer! " + e);
@@ -230,7 +230,7 @@ public class Client implements ClientOperations{
             cnt = (String[])ois.readObject();
             
         } catch (IOException e) {
-            System.out.println("Error - Writing login data! " + e);
+            System.out.println("Error - Writing command! " + e);
             cnt = null;
         } catch (ClassNotFoundException e) {
             System.out.println("Error - Reading server answer! " + e);
@@ -252,13 +252,103 @@ public class Client implements ClientOperations{
             path = (String)ois.readObject();
             
         } catch (IOException e) {
-            System.out.println("Error - Writing login data! " + e);
+            System.out.println("Error - Writing command! " + e);
             path = null;
         } catch (ClassNotFoundException e) {
             System.out.println("Error - Reading server answer! " + e);
             path = null;
         }
         return path;
+    }
+    
+    @Override
+    public boolean makeDir(String dirName){
+        String msg = "MKDIR" + " " + dirName;
+        boolean created = false;
+       
+        try {
+            oos.flush();
+            oos.writeObject(msg);
+            oos.flush();
+            
+            created = (Boolean)ois.readObject();
+            
+        } catch (IOException e) {
+            System.out.println("Error - Writing command! " + e);
+            
+        } catch (ClassNotFoundException e) {
+            System.out.println("Error - Reading server answer! " + e);
+            
+        }
+        return created;
+    }
+    
+    @Override
+    public boolean changeDir(String dirName){
+        String msg = "CHDIR" + " " + dirName;
+        boolean changed = false;
+       
+        try {
+            oos.flush();
+            oos.writeObject(msg);
+            oos.flush();
+            
+            changed = (Boolean)ois.readObject();
+            
+        } catch (IOException e) {
+            System.out.println("Error - Writing command! " + e);
+            
+        } catch (ClassNotFoundException e) {
+            System.out.println("Error - Reading server answer! " + e);
+            
+        }
+        return changed;
+    }
+    
+    @Override
+    public String[] getFileContent(String fileName){
+        String[] cnt = null;
+        
+        String msg = "FCNT" + " " + fileName;
+        
+        try {
+            oos.flush();
+            oos.writeObject(msg);
+            oos.flush();
+            
+            cnt = (String[])ois.readObject();
+            
+        } catch (IOException e) {
+            System.out.println("Error - Writing command! " + e);
+            
+        } catch (ClassNotFoundException e) {
+            System.out.println("Error - Reading server answer! " + e);
+            
+        }
+        
+        return cnt;
+    }
+    
+    @Override
+    public boolean removeFile(String fileName){
+        String msg = "FRMV " + fileName;
+        boolean removed = false;
+         try {
+            oos.flush();
+            oos.writeObject(msg);
+            oos.flush();
+            
+            removed = (Boolean)ois.readObject();
+            
+        } catch (IOException e) {
+            System.out.println("Error - Writing command! " + e);
+            return false;
+        } catch (ClassNotFoundException e) {
+            System.out.println("Error - Reading server answer! " + e);
+            return false;
+        }       
+         
+         return removed;
     }
     
     public String getLocalIpAddress() {

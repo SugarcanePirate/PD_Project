@@ -66,18 +66,19 @@ public class ClientUI {
     }
     
     public void initHelp(){
-        help = new String[] {"{help} - show command list.",
+        help = new String[] {"{exit} - exit application.",
+                            "{help} - show command list.",
                             "{cls} - clear screen.",
                             "{reg password server_number} - register in a server.",
                             "{log username password} - login in the actual server.",
                             "{out} - logout from the actual server.",
                             "{dircnt} - list actual directory content.",
                             "{dirpth} - get actual directory path.",
-                            "{dirch destination_directory} - change working directory.",
-                            "{dirmk directory_name} - make a directory.",
+                            "{chdir destination_directory} - change working directory.",
+                            "{mkdir directory_name} - make a directory.",
                             "{fcnt file_name} - get and list file content.",
-                            "{fcpy file_name destination_directory} - copy file.",
-                            "{fmv file_name destination_directory} - move file.",
+                            "{fcpy file_name destination_directory} - copy file.", //FALTA
+                            "{fmv file_name destination_directory} - move file.", //FALTA
                             "{frmv file_name} - remove file/directory."};
     }
     
@@ -95,18 +96,18 @@ public class ClientUI {
         cmd = cmd.trim();
         
         commands = cmd.split(" ");
-        for(int i = 0; i < commands.length; i++)
-            commands[i] = commands[i].toUpperCase();
+        
+            commands[0] = commands[0].toUpperCase();
         
         return commands;
     }
     
-    public void printServerList(){
-        String[] list = me.getServerList();
-        
-        for(int i = 0; i < list.length; i++)
-            System.out.println((i+1) + " - " + list[i]);
-    }
+//    public void printServerList(){
+//        String[] list = me.getServerList();
+//        
+//        for(int i = 0; i < list.length; i++)
+//            System.out.println((i+1) + " - " + list[i]);
+//    }
     
     public void printList(String[] l){
         for (String line : l) {
@@ -118,6 +119,7 @@ public class ClientUI {
         Scanner sc = new Scanner(System.in);
         String username, password;
         String[] commands;
+        String[] cnt;
                 
         if(!connected){
             cls();
@@ -129,13 +131,21 @@ public class ClientUI {
             me.connect(); // CONNECTED?????
             initHelp();
             
-            printServerList();
+            printList(me.getServerList());
         }
         
         while(true){
             System.out.print(":> ");
             commands = processCmd(sc.nextLine());
             switch(commands[0]){
+                case "EXIT":
+                    if(commands.length != 1)
+                        break;
+                   
+                    System.exit(0);
+                    
+                    break;
+                    
                 case "HELP":
                     if(commands.length != 1)
                         break;
@@ -156,8 +166,13 @@ public class ClientUI {
                         break;
                     
                     password = commands[1];
-                    int server = Integer.parseInt(commands[2]);
-                    
+                    int server = 0;
+                    try{
+                        server = Integer.parseInt(commands[2]);
+                    }catch(NumberFormatException e){
+                        System.out.println("Servidor desconhecido...");
+                        break;
+                    }
                     if(!me.register(password, server))
                         System.out.println("Registration failed!");
                     
@@ -189,7 +204,7 @@ public class ClientUI {
                 case "DIRCNT":
                     if(commands.length != 1)
                         break;
-                    String[] cnt = null;
+                    cnt = null;
                     
                     if((cnt = me.getDirContent()) != null)
                         printList(cnt);
@@ -205,6 +220,44 @@ public class ClientUI {
                     System.out.println(me.getDirPath());
                     
                     break;
+                    
+                case "MKDIR":
+                    if(commands.length != 2)
+                        break;
+                    
+                    if(!me.makeDir(commands[1]))
+                        System.out.println("Error - creating directory.");
+                    
+                    break;
+                    
+                case "CHDIR":
+                    if(commands.length != 2)
+                        break;
+                    
+                    if(!me.changeDir(commands[1]))
+                        System.out.println("Error - changing directory.");
+                    
+                    break;
+                    
+                case "FCNT":
+                    if(commands.length != 2)
+                        break;
+                    
+                    cnt = null;
+                    
+                    if((cnt = me.getFileContent(commands[1])) != null)
+                        printList(cnt);
+                    
+                    break;
+                    
+                case "FRMV":
+                    if(commands.length != 2)
+                        break;
+                    
+                    if(me.removeFile(commands[1]))
+                        System.out.println("File removed successfully.");
+                    
+                    break;    
                 default:
                     System.out.println("'" + commands[0] + "' is not recognized as a command...");
             }
