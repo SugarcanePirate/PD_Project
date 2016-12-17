@@ -98,9 +98,10 @@ public class ClientsConnectionThread extends Thread{
                     sendBuffer = byteArray.toByteArray();
                     packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, PORT_UDP_CONN); 
                     socketToClient.send(packetToSend);
+                    System.out.println("ENTROU : " + name);
 
                 } else {
-
+System.out.println("JA EXISTE : " + name);
                     String[] notConnected = { "not connected" };
                     os.flush();
                     os.writeObject(notConnected);
