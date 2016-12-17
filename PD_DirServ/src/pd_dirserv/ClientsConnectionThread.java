@@ -125,11 +125,16 @@ System.out.println("JA EXISTE : " + name);
     
  public String[] getServerList(){
      int i=0;
-    String[] list = new String[serverList.size()];
+     String[] list = null;
+    if(serverList.size() > 0){
+    list = new String[serverList.size()];
     for(String key: serverList.keySet()){
         Server s = serverList.get(key);
         list[i] = " " + s.getName() + " " + s.getIp() + " " + s.getPort();
         i++;
+    }
+    }else{
+        list[0] = "No servers...";
     }
     return list;
 }
