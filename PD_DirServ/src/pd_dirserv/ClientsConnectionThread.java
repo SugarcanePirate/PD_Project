@@ -12,14 +12,11 @@ import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 
@@ -45,89 +42,79 @@ public class ClientsConnectionThread extends Thread{
     
    
     
-    
-    @Override
-    public void run(){
+     @Override
+    public void run() {
         byte[] buff = new byte[MAX_SIZE];
-        String name,clientIp;
+        String name, clientIp;
         String connected = "";
         DatagramPacket packetToReceive;
         DatagramPacket packetToSend;
         InetAddress addr = null;
         ByteArrayOutputStream byteArray = null;
         ObjectOutputStream os = null;
-        
-        
+        byte[] sendBuffer = null;
+
         packetToReceive = new DatagramPacket(buff, MAX_SIZE);
-     
-        while(true){
-        try{
-            socketToClient = new DatagramSocket(myPort);
-            
-            System.out.println("Waiting for clients");
-            
-            socketToClient.receive(packetToReceive);
-            System.out.println("Client arrived");
-            
-            byte[] data = packetToReceive.getData();  //recebe nome do servidor e os dados ip/porto
 
-             System.out.println("Reading client data");
-            
-            String username = new String(data);
-         
-            Scanner scan = new Scanner(username);
+        while (true) {
+            try {
+                socketToClient = new DatagramSocket(myPort);
 
-            name = scan.next();
-            clientIp = scan.next();
-            
-            if (!clientList.contains(name)) {      //verifica se ja existe user com mesmo nome, se não existir adiciona
-                clientList.add(name);
-                connected = 1 + " ";
-            }
-            
-            
-            
-            
+                System.out.println("Waiting for clients");
+
+                socketToClient.receive(packetToReceive);
+                System.out.println("Client arrived");
+
+                byte[] data = packetToReceive.getData();  //recebe nome do servidor e os dados ip/porto
+
+                System.out.println("Reading client data");
+
+                String username = new String(data);
+
+                Scanner scan = new Scanner(username);
+
+                name = scan.next();
+                clientIp = scan.next();
+
                 addr = InetAddress.getByName(clientIp);
-            
-             byteArray = new ByteArrayOutputStream(MAX_SIZE);
-            os = new ObjectOutputStream(new BufferedOutputStream(byteArray));
-            os.flush();
-            os.writeObject(getServerList());
-            os.flush();
-            byte[] sendBuffer = byteArray.toByteArray();
-                        packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, PORT_UDP_CONN);  // envia ao cliente a lista de servidores
-            socketToClient.send(packetToSend);
-            os.close();
-            System.out.println("Server list sent");
-            
-        
-            
-            
-            
 
+                byteArray = new ByteArrayOutputStream(MAX_SIZE);
+                os = new ObjectOutputStream(new BufferedOutputStream(byteArray));
 
-            System.out.println("Sending Packet");
+                if (!clientList.contains(name)) {     
+                    clientList.add(name);
+                    connected = 1 + " ";
 
-            
-        }catch (UnknownHostException e) {
+                    os.flush();
+                    os.writeObject(getServerList());
+                    os.flush();
+                    sendBuffer = byteArray.toByteArray();
+                    packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, PORT_UDP_CONN); 
+                    socketToClient.send(packetToSend);
+
+                } else {
+
+                    String[] notConnected = new String[0];
+                    os.flush();
+                    os.writeObject(notConnected);
+                    os.flush();
+                    sendBuffer = byteArray.toByteArray();
+                    packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, PORT_UDP_CONN);  
+                    socketToClient.send(packetToSend);
+                    os.close();
+                    System.out.println("Answer sent...");
+                }
+
+            } catch (UnknownHostException e) {
                 System.err.println("Error - " + e);
-            }catch(IOException e){
-            System.out.println("Error receiving message : " + e);
-        }
-               
-        }
-        
-            
+            } catch (IOException e) {
+                System.out.println("Error receiving message : " + e);
+            }
 
-           
-        
-           
+        }
 
-            
-          
-        
     }
+    
  public String[] getServerList(){
      int i=0;
     String[] list = new String[serverList.size()];
