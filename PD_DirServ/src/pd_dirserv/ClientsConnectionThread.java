@@ -94,7 +94,8 @@ public class ClientsConnectionThread extends Thread{
 
                 } else {
 
-                    String[] notConnected = new String[0];
+                    String[] notConnected = new String[1];
+                    notConnected[0] = "not connected";
                     os.flush();
                     os.writeObject(notConnected);
                     os.flush();
