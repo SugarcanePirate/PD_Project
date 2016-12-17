@@ -134,6 +134,7 @@ System.out.println("JA EXISTE : " + name);
         i++;
     }
     }else{
+        list = new String[1] ;
         list[0] = "No servers...";
     }
     return list;
