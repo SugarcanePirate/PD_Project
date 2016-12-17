@@ -12,11 +12,14 @@ import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 
@@ -55,10 +58,14 @@ public class ClientsConnectionThread extends Thread{
         byte[] sendBuffer = null;
 
         packetToReceive = new DatagramPacket(buff, MAX_SIZE);
-
+        try {
+            socketToClient = new DatagramSocket(myPort);
+        } catch (SocketException ex) {
+            Logger.getLogger(ClientsConnectionThread.class.getName()).log(Level.SEVERE, null, ex);
+        }
         while (true) {
             try {
-                socketToClient = new DatagramSocket(myPort);
+                
 
                 System.out.println("Waiting for clients");
 
@@ -94,8 +101,7 @@ public class ClientsConnectionThread extends Thread{
 
                 } else {
 
-                    String[] notConnected = new String[1];
-                    notConnected[0] = "not connected";
+                    String[] notConnected = { "not connected" };
                     os.flush();
                     os.writeObject(notConnected);
                     os.flush();
