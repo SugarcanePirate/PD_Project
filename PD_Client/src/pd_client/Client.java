@@ -85,7 +85,8 @@ public class Client implements ClientOperations{
     public String[] getServerList(){ return serverList; }
     
     @Override
-    public void connect(){
+    public boolean connect(){
+        boolean connected = false;
         String myIp = getLocalIpAddress();
         
         DatagramPacket packetToSend = null;
@@ -117,6 +118,9 @@ public class Client implements ClientOperations{
             is = new ObjectInputStream(new BufferedInputStream(byteStream));
             
             serverList = (String[]) is.readObject();
+            if(serverList.length != 0)
+                connected = true;
+            
             System.out.println("Server List received...");
             is.close();
             
@@ -129,7 +133,7 @@ public class Client implements ClientOperations{
         }catch (IOException e) {
             System.err.println("Error sending/receiving the answer... - " + e);
         }
-        
+        return connected;
     }
     
     @Override

@@ -121,18 +121,17 @@ public class ClientUI {
         String[] commands;
         String[] cnt;
                 
-        if(!connected){
+       do{
             cls();
             System.out.println("Enter a valid username: ");
             System.out.println(":>");
             username = sc.nextLine();
-            
             initClient(username);
-            me.connect(); // CONNECTED?????
-            initHelp();
             
-            printList(me.getServerList());
-        }
+        }while(!me.connect());
+       
+       initHelp();
+       printList(me.getServerList());
         
         while(true){
             System.out.print(":> ");

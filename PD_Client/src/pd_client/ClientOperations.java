@@ -10,7 +10,7 @@ package pd_client;
  * @author dvchava
  */
 public interface ClientOperations {
-    public void connect();
+    public boolean connect();
     public boolean register(String pass, int server);
     public boolean login(String username, String password);
     public boolean logout();
