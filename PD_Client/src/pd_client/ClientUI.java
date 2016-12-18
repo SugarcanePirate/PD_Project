@@ -79,7 +79,9 @@ public class ClientUI {
                             "{fcnt file_name} - get and list file content.",
                             "{fcpy file_name destination_directory} - copy file.", //FALTA
                             "{fmv file_name destination_directory} - move file.", //FALTA
-                            "{frmv file_name} - remove file/directory."};
+                            "{frmv file_name} - remove file/directory.", //FALTA
+                            "{srvls} - shows servers list."};
+                            
     }
     
     
@@ -256,7 +258,15 @@ public class ClientUI {
                     if(me.removeFile(commands[1]))
                         System.out.println("File removed successfully.");
                     
+                    break; 
+                case "SRVLS":
+                    if(commands.length != 1)
+                        break;
+                    
+                    printList(Globals.getServerList());
+                    
                     break;    
+                    
                 default:
                     System.out.println("'" + commands[0] + "' is not recognized as a command...");
             }

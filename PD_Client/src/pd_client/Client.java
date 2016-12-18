@@ -35,6 +35,7 @@ public class Client implements ClientOperations{
     int dirServPort;
     ObjectOutputStream oos = null;
     ObjectInputStream ois = null;
+    int PORT_HB;
     
     String username;
     String pass;
@@ -117,15 +118,21 @@ public class Client implements ClientOperations{
             byteStream = new ByteArrayInputStream(recvBuffer);
             is = new ObjectInputStream(new BufferedInputStream(byteStream));
             
-            serverList = (String[]) is.readObject();
-            if(serverList[0].equalsIgnoreCase("not connected"))
+            String answer = (String) is.readObject();
+            answer = answer.trim();
+             String[] answers = answer.split(" ");
+            if(answers.length == 1)
                 connected = false;
+            else{
+                PORT_HB = Integer.parseInt(answers[1]);
+                new HeartBeatThread(username,dirServIP,PORT_HB);
+                System.out.println("HB created...");
+            }
             
-            System.out.println("Server List received...");
+            
             is.close();
             
-            
-            
+   
         } catch (SocketException e) {
             System.err.println("Error creating the heart beat socket - " + e);
             connected = false;
