@@ -101,7 +101,7 @@ public class ClientsConnectionThread extends Thread{
                     System.out.println("ENTROU : " + name);
 
                 } else {
-System.out.println("JA EXISTE : " + name);
+                    System.out.println("JA EXISTE : " + name);
                     String[] notConnected = { "not connected" };
                     os.flush();
                     os.writeObject(notConnected);
