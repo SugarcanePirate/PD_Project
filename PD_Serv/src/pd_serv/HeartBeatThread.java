@@ -58,7 +58,7 @@ public class HeartBeatThread extends Thread{
         packetInitialization();
         while(true){
             try {
-                Thread.sleep(30000);
+                Thread.sleep(20000);
                 System.out.println("Sending HearBeat...");
                 hbSocket.send(packet);
                 System.out.println("HearBeat sended...");
