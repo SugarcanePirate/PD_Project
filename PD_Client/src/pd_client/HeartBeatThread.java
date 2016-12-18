@@ -22,7 +22,7 @@ import java.util.logging.Logger;
  * @author David
  */
 public class HeartBeatThread extends Thread{
-    public static int MAX_SIZE = 256;
+    public static int MAX_SIZE = 5000;
     InetAddress addr;
     DatagramSocket hbSocket;
     int PORT_HB;
@@ -36,11 +36,7 @@ public class HeartBeatThread extends Thread{
     byte[] recvbuf = new byte[MAX_SIZE];
     
     public HeartBeatThread(String name, String dirServIP, int PORT_HB) {
-        try {
-            this.hbSocket = new DatagramSocket();
-        } catch (SocketException ex) {
-            Logger.getLogger(HeartBeatThread.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        
         this.PORT_HB = PORT_HB;
         this.packetsend = null;
         this.packetreceive = null;
@@ -64,9 +60,14 @@ public class HeartBeatThread extends Thread{
     @Override
     public void run(){
         packetInitialization();
+        try {
+            this.hbSocket = new DatagramSocket(PORT_HB);
+        } catch (SocketException ex) {
+            Logger.getLogger(HeartBeatThread.class.getName()).log(Level.SEVERE, null, ex);
+        }
         while(true){
             try {
-                Thread.sleep(10000);
+                Thread.sleep(5000);
                 System.out.println("Sending HearBeat...");
                 hbSocket.send(packetsend);
                 System.out.println("HearBeat sent...");
@@ -74,6 +75,7 @@ public class HeartBeatThread extends Thread{
                 System.out.println("Server List received...");
                 byteStream = new ByteArrayInputStream(recvbuf);
                 is = new ObjectInputStream(new BufferedInputStream(byteStream));
+                
 
                 serverlist = (String[]) is.readObject();
                 Globals.setServerList(serverlist);

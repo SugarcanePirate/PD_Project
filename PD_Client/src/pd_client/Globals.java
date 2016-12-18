@@ -11,7 +11,7 @@ package pd_client;
  */
 public final class Globals {
     private static String[] serverList;
-    private static int logged;
+    private static int logged = 0;
 
     public static String[] getServerList(){
         return serverList;

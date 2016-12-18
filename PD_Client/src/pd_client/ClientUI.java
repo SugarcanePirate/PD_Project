@@ -133,7 +133,7 @@ public class ClientUI {
         }while(!me.connect());
        
        initHelp();
-       printList(me.getServerList());
+//       printList(me.getServerList());
         
         while(true){
             System.out.print(":> ");

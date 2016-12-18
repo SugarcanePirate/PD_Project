@@ -112,9 +112,8 @@ public class Client implements ClientOperations{
 
             byte[] recvBuffer = new byte[MAX_SIZE];
             packetToReceive = new DatagramPacket(recvBuffer, MAX_SIZE);
-            System.out.println("Receiving server List...");
+            System.out.println("Receiving confirmation");
             connSocket.receive(packetToReceive);
-            System.out.println("Server List received...");
             byteStream = new ByteArrayInputStream(recvBuffer);
             is = new ObjectInputStream(new BufferedInputStream(byteStream));
             
@@ -125,7 +124,7 @@ public class Client implements ClientOperations{
                 connected = false;
             else{
                 PORT_HB = Integer.parseInt(answers[1]);
-                new HeartBeatThread(username,dirServIP,PORT_HB);
+                new HeartBeatThread(username,dirServIP,PORT_HB).start();
                 System.out.println("HB created...");
             }
             
