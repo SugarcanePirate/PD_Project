@@ -83,7 +83,8 @@ public class ServersConnectionThread extends Thread {
 
             String name = scan.next();
             int port = scan.nextInt();
-            String ip = scan.next();
+            String ip = new String();
+            ip = scan.next();
             if (!Globals.getServerList().containsKey(name)) {
                 try {
                 hbSocket = new DatagramSocket(0);
