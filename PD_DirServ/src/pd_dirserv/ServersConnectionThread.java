@@ -77,10 +77,10 @@ public class ServersConnectionThread extends Thread {
 
             byte[] data = packetToReceive.getData();  //recebe nome do servidor e os dados ip/porto
 
-            String hb = new String(data);
+           
 
-            Scanner scan = new Scanner(hb);
-            String serverAnswer = new String();
+            
+            String serverAnswer = new String(data);
             serverAnswer = serverAnswer.trim();
             String[] answers = serverAnswer.split(" ");
             String name = answers[0];
