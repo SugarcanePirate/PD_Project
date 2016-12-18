@@ -22,16 +22,16 @@ public class PD_DirServ {
      */
     public static void main(String[] args) {
         String ip = "192.168.1.116";
-        Map<String,Server> serverList = new HashMap<>();
+        
         
         String name;
         Thread serverconnection;
         Thread clientconnection;
         
         
-        serverconnection = new ServersConnectionThread(ip,PORT_Conn_Serv,serverList);
+        serverconnection = new ServersConnectionThread(ip,PORT_Conn_Serv);
         serverconnection.start();
-        clientconnection = new ClientsConnectionThread(ip,PORT_Conn_Client,serverList);
+        clientconnection = new ClientsConnectionThread(ip,PORT_Conn_Client);
         clientconnection.start();
     }
     

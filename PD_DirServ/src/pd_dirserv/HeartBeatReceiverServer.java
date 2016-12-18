@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  *
  * @author David
  */
-public class HeartBeatReceiver extends Thread{
+public class HeartBeatReceiverServer extends Thread{
     public static final int TIMEOUT = 31000;
   public final static int HB_PORT = 6001;
     public static final int MAX_SIZE = 256;
@@ -28,7 +28,7 @@ public class HeartBeatReceiver extends Thread{
     Server server;
     
 
-    public HeartBeatReceiver(Server server) {
+    public HeartBeatReceiverServer(Server server) {
 
         this.server = server;
     }
@@ -50,14 +50,14 @@ public class HeartBeatReceiver extends Thread{
             socket = new DatagramSocket(HB_PORT);
             server.setHbSocket(socket);
         } catch (SocketException ex) {
-            Logger.getLogger(HeartBeatReceiver.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(HeartBeatReceiverServer.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         packetToReceive = new DatagramPacket(buff, MAX_SIZE);
         try {
             socket.setSoTimeout(TIMEOUT);
         } catch (SocketException ex) {
-            Logger.getLogger(HeartBeatReceiver.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(HeartBeatReceiverServer.class.getName()).log(Level.SEVERE, null, ex);
         }
         while(true){
         try{
