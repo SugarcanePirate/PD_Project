@@ -16,6 +16,7 @@ public class Client {
     String name;
     String ip;
     int logged;
+    Thread thb;
 
     public String getIp() {
         return ip;
@@ -32,7 +33,7 @@ public class Client {
     public void setLogged(int logged) {
         this.logged = logged;
     }
-    Thread thb;
+    
 
     public Client(String name, String ip) {
         this.ip = ip;
