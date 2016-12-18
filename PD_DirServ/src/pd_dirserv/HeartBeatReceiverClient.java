@@ -52,7 +52,7 @@ public class HeartBeatReceiverClient  extends Thread{
         oos = new ObjectOutputStream(new BufferedOutputStream(byteArray));
 
         oos.flush();
-        oos.writeObject(Globals.getServerList());
+        oos.writeObject(getServerList());
         oos.flush();
         byte[] recvBuffer = new byte[MAX_SIZE];
         byte[] sendBuffer = byteArray.toByteArray();
@@ -61,43 +61,70 @@ public class HeartBeatReceiverClient  extends Thread{
         packetToReceive = new DatagramPacket(recvBuffer, MAX_SIZE);
     }
     
+    public String[] getServerList(){
+     int i=0;
+     String[] list = null;
+    if(Globals.getServerList().size() > 0){
+    list = new String[Globals.getServerList().size()];
+    for(String key: Globals.getServerList().keySet()){
+        Server s = Globals.getServerList().get(key);
+        list[i] = " " + s.getName() + " " + s.getIp() + " " + s.getPort();
+        i++;
+    }
+    }else{
+        list = new String[1] ;
+        list[0] = "No servers...";
+    }
+    return list;
+}
+    
     
     @Override
     public void run(){
+        
          
         try {
+            packetInitialization();
             socket = new DatagramSocket(PORT_HB);
+            socket.setSoTimeout(TIMEOUT);
             client.setHbSocket(socket);
         } catch (SocketException ex) {
             Logger.getLogger(HeartBeatReceiverServer.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(HeartBeatReceiverClient.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        
-        try {
-            socket.setSoTimeout(TIMEOUT);
-        } catch (SocketException ex) {
-            Logger.getLogger(HeartBeatReceiverServer.class.getName()).log(Level.SEVERE, null, ex);
-        }
+
         while(true){
         try{
             System.out.println("Receiving Heartbeat...");
             
             socket.receive(packetToReceive);
-            byte[] data = packetToReceive.getData();  //recebe nome do servidor e os dados ip/porto
+            byte[] data = packetToReceive.getData();
 
                 System.out.println("Reading client data");
 
                 String hbMsg = new String(data);
+                hbMsg = hbMsg.trim();
 
-                Scanner scan = new Scanner(hbMsg);
+                String[] answers = hbMsg.split(" ");
                 
-                String name = scan.nextLine();
-                int logged = scan.nextInt();
+                String name = answers[0];
+                int logged = Integer.parseInt(answers[1]);
                 
                 updateClientInfo(name,logged);
                 
+                oos.flush();
+                oos.writeObject(getServerList());
+                oos.flush();
+                System.out.println("sending HB...");
+                byte[] sendBuffer = byteArray.toByteArray();
+                InetAddress addr = InetAddress.getByName(client.getIp());
+                packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, PORT_HB);
+                
                 
                 socket.send(packetToSend);
+                
+                System.out.println("HB sent...");
                 
             System.out.println("Heartbeat active!");
 
