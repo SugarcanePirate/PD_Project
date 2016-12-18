@@ -45,11 +45,11 @@ public class ServersConnectionThread extends Thread {
     public void run() {
         String connected = "";
         byte[] buff = new byte[MAX_SIZE];
-        String ip;
+        
         DatagramPacket packetToSend = null;
         DatagramPacket packetToReceive;
-        String name;
-        int port;
+        
+        
         InetAddress addr = null;
         
          try {
@@ -81,9 +81,9 @@ public class ServersConnectionThread extends Thread {
 
             Scanner scan = new Scanner(hb);
 
-            name = scan.next();
-            port = scan.nextInt();
-            ip = scan.next();
+            String name = scan.next();
+            int port = scan.nextInt();
+            String ip = scan.next();
             if (!Globals.getServerList().containsKey(name)) {
                 try {
                 hbSocket = new DatagramSocket(0);
