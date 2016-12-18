@@ -29,7 +29,7 @@ public class ServersConnectionThread extends Thread {
 
     public final static int PORT_UDP_CONN = 6000;
     public final static int PORT_UDP_HB = 6001;
-    public static final int MAX_SIZE = 256;
+    public static final int MAX_SIZE = 5000;
     int servPort;
     String dirServIP;
     DatagramSocket socket = null;
@@ -44,7 +44,7 @@ public class ServersConnectionThread extends Thread {
     @Override
     public void run() {
         String connected = "";
-        byte[] buff = new byte[MAX_SIZE];
+        
         
         DatagramPacket packetToSend = null;
         DatagramPacket packetToReceive;
@@ -61,6 +61,7 @@ public class ServersConnectionThread extends Thread {
             }
 
         while (true) {
+            byte[] buff = new byte[MAX_SIZE];
             DatagramSocket hbSocket =  null;
            
 
