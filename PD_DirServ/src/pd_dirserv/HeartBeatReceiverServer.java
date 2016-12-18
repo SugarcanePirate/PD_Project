@@ -31,7 +31,7 @@ public class HeartBeatReceiverServer extends Thread{
     public HeartBeatReceiverServer(Server server) {
 
         this.server = server;
-        HB_PORT = this.server.getHbPort();
+        this.socket = server.getHbSocket();
     }
     
    
@@ -45,15 +45,7 @@ public class HeartBeatReceiverServer extends Thread{
         InetAddress addr;
         DatagramPacket packetToReceive;
         DatagramPacket packetToSend;
-        
-         
-        try {
-            socket = new DatagramSocket(HB_PORT);
-            server.setHbSocket(socket);
-        } catch (SocketException ex) {
-            Logger.getLogger(HeartBeatReceiverServer.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
+
         packetToReceive = new DatagramPacket(buff, MAX_SIZE);
 
         while(true){

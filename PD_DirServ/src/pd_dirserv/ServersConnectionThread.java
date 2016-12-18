@@ -87,7 +87,7 @@ public class ServersConnectionThread extends Thread {
             if (!Globals.getServerList().containsKey(name)) {
                 try {
                 hbSocket = new DatagramSocket(0);
-                Globals.getServerList().put(name, new Server(name, ip, port, hbSocket.getLocalPort()));
+                Globals.getServerList().put(name, new Server(name, ip, port, hbSocket));
                 connected = 1 + " " + hbSocket.getLocalPort();
                 } catch (SocketException ex) {
                     Logger.getLogger(ServersConnectionThread.class.getName()).log(Level.SEVERE, null, ex);
