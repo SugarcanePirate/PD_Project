@@ -14,9 +14,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,15 +29,14 @@ public class ClientsConnectionThread extends Thread{
     public static final int MAX_SIZE = 5000;
     int myPort;
     DatagramSocket socketToClient =null;
-    List <String>clientList;
+    Client client;
+    
     String myIp;
-    Map<String,Server> serverList;
 
-    public ClientsConnectionThread(String myIp, int myPort,Map<String,Server> serverList) {
+    public ClientsConnectionThread(String myIp, int myPort) {
         this.myIp = myIp;
         this.myPort = myPort;
-        clientList = new ArrayList<>();
-        this.serverList = serverList;
+        
     }
     
    
@@ -88,8 +84,9 @@ public class ClientsConnectionThread extends Thread{
                 byteArray = new ByteArrayOutputStream(MAX_SIZE);
                 os = new ObjectOutputStream(new BufferedOutputStream(byteArray));
 
-                if (!clientList.contains(name)) {     
-                    clientList.add(name);
+                if (!Globals.getClientList().containsKey(name)) {     
+                    client = new Client(name);
+                    Globals.getClientList().put(name,client);
                     connected = 1 + " ";
 
                     os.flush();
@@ -126,10 +123,10 @@ System.out.println("JA EXISTE : " + name);
  public String[] getServerList(){
      int i=0;
      String[] list = null;
-    if(serverList.size() > 0){
-    list = new String[serverList.size()];
-    for(String key: serverList.keySet()){
-        Server s = serverList.get(key);
+    if(Globals.getServerList().size() > 0){
+    list = new String[Globals.getServerList().size()];
+    for(String key: Globals.getServerList().keySet()){
+        Server s = Globals.getServerList().get(key);
         list[i] = " " + s.getName() + " " + s.getIp() + " " + s.getPort();
         i++;
     }

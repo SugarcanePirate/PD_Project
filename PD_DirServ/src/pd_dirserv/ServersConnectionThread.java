@@ -33,13 +33,12 @@ public class ServersConnectionThread extends Thread {
     int servPort;
     String dirServIP;
     DatagramSocket socket = null;
-    Map<String, Server> serverList;
 
-    public ServersConnectionThread(String dirServIP, int servPort, Map<String, Server> serverList) {
+    public ServersConnectionThread(String dirServIP, int servPort) {
 
         this.dirServIP = dirServIP;
         this.servPort = servPort;
-        this.serverList = serverList;
+        
     }
 
     @Override
@@ -84,8 +83,8 @@ public class ServersConnectionThread extends Thread {
             name = scan.next();
             port = scan.nextInt();
             ip = scan.next();
-            if (!serverList.containsKey(name)) {      //verifica se ja existe servidor com mesmo nome,
-                serverList.put(name, new Server(name, ip, port));
+            if (!Globals.getServerList().containsKey(name)) {      //verifica se ja existe servidor com mesmo nome,
+                Globals.getServerList().put(name, new Server(name, ip, port));
                 connected = 1 + " " + PORT_UDP_HB;
             }
 
@@ -106,7 +105,7 @@ public class ServersConnectionThread extends Thread {
             } catch (IOException e) {
                 System.err.println("Error sending the name and listening port... - " + e);
             }
-            new HeartBeatReceiver(serverList.get(name)).start();
+            new HeartBeatReceiverServer(Globals.getServerList().get(name)).start();
 //        msg = new String(packetToReceive.getData(), 0, packetToReceive.getLength());
 //        
 //        System.out.println("Confirming connection to: " + msg);
