@@ -96,6 +96,9 @@ public class HeartBeatReceiverClient  extends Thread{
                 
                 updateClientInfo(name,logged);
                 
+                
+                socket.send(packetToSend);
+                
             System.out.println("Heartbeat active!");
 
         }catch(SocketTimeoutException e){
