@@ -26,6 +26,7 @@ import java.util.logging.Logger;
  */
 public class ClientsConnectionThread extends Thread{
     public final static int PORT_UDP_CONN = 6002;
+    public final static int PORT_HB = 6003;
     public static final int MAX_SIZE = 5000;
     int myPort;
     DatagramSocket socketToClient =null;
@@ -85,23 +86,26 @@ public class ClientsConnectionThread extends Thread{
                 os = new ObjectOutputStream(new BufferedOutputStream(byteArray));
 
                 if (!Globals.getClientList().containsKey(name)) {     
-                    client = new Client(name);
-                    Globals.getClientList().put(name,client);
-                    connected = 1 + " ";
+                    client = new Client(name, clientIp);
+                    
+                    connected = 1 + " " + PORT_HB;
 
                     os.flush();
-                    os.writeObject(getServerList());
+                    os.writeObject(connected);
                     os.flush();
                     sendBuffer = byteArray.toByteArray();
                     packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, PORT_UDP_CONN); 
                     socketToClient.send(packetToSend);
                     System.out.println("ENTROU : " + name);
-
+                    
+                    client.thb = new HeartBeatReceiverClient(client,PORT_HB);
+                    client.thb.start();                    
+                    Globals.getClientList().put(name,client);
                 } else {
                     System.out.println("JA EXISTE : " + name);
-                    String[] notConnected = { "not connected" };
+                    connected = "0";
                     os.flush();
-                    os.writeObject(notConnected);
+                    os.writeObject(connected);
                     os.flush();
                     sendBuffer = byteArray.toByteArray();
                     packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, PORT_UDP_CONN);  

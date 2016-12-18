@@ -14,9 +14,29 @@ import java.net.DatagramSocket;
 public class Client {
     DatagramSocket hbSocket=null; //Heart beat Socket
     String name;
+    String ip;
+    int logged;
     Thread thb;
 
-    public Client(String name) {
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public int getLogged() {
+        return logged;
+    }
+
+    public void setLogged(int logged) {
+        this.logged = logged;
+    }
+    
+
+    public Client(String name, String ip) {
+        this.ip = ip;
         this.name = name;
     }
 
