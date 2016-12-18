@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -105,6 +108,7 @@ public class EchoThread extends Thread {
        
        
         String[] cmd ;
+        File file;
         
 //        try {
 //            oos = new ObjectOutputStream(socket.getOutputStream());
@@ -175,6 +179,58 @@ public class EchoThread extends Thread {
                             System.out.println("Dir changed");
 //                            throw new InterruptedException();
                         break;
+                        case "DIRCNT":
+                            if(!logged)
+                                break;
+                            File dir = new File(client.getCurrentDir());
+                            String[] names = dir.list();
+                            oos.flush();
+                            oos.writeObject(names);
+                            oos.flush();
+                             System.out.println("List sent");
+                            break;
+                            
+                        case "DIRPTH":
+                            if(!logged)
+                                break;
+                            String dirpath = client.getCurrentDir();
+                            oos.flush();
+                            oos.writeObject(dirpath);
+                            oos.flush();
+                            System.out.println("Dir path sent");
+                            break;
+                            
+                       case "FRMV":
+                            if(!logged)
+                                break;
+                            boolean deleted = false;
+                            
+                            file = new File(client.getCurrentDir()+File.separator+cmd[1]);
+                            deleted = Files.deleteIfExists(file.toPath());
+                            oos.flush();
+                            oos.writeObject(deleted);
+                            oos.flush();
+                            System.out.println("File removed");
+                            
+                            break;
+                               case "FCNT":
+                            if(!logged)
+                                break;
+                                file = new File(client.getCurrentDir()+File.separator+cmd[1]);
+                                Charset charset = Charset.forName("ISO-8859-1");
+                                
+                                List<String> lines = Files.readAllLines(file.toPath(), charset);
+                                String [] fileCnt=new String[lines.size()];
+                                for(int i=0;i<lines.size();i++)
+                                    fileCnt[i]=lines.get(i);
+                                
+                             oos.flush();
+                             oos.writeObject(fileCnt);
+                             oos.flush();
+                             
+                             System.out.println("Content sent");
+                            
+                            break;
                     default:
                         break;
                 }
