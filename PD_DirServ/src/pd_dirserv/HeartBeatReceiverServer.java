@@ -54,13 +54,10 @@ public class HeartBeatReceiverServer extends Thread{
         }
         
         packetToReceive = new DatagramPacket(buff, MAX_SIZE);
-        try {
-            socket.setSoTimeout(TIMEOUT);
-        } catch (SocketException ex) {
-            Logger.getLogger(HeartBeatReceiverServer.class.getName()).log(Level.SEVERE, null, ex);
-        }
+
         while(true){
         try{
+            socket.setSoTimeout(TIMEOUT);
             System.out.println("Receiving Heartbeat...");
             
             socket.receive(packetToReceive);
