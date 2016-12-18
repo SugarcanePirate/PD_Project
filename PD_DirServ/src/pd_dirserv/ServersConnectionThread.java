@@ -77,14 +77,14 @@ public class ServersConnectionThread extends Thread {
 
             byte[] data = packetToReceive.getData();  //recebe nome do servidor e os dados ip/porto
 
-            String hb = new String(data);
+            String serverAnswer = new String(data);
+            serverAnswer = serverAnswer.trim(); 
+            String[] answers = serverAnswer.split(" ");
 
-            Scanner scan = new Scanner(hb);
-
-            String name = scan.next();
-            int port = scan.nextInt();
-            String ip = new String();
-            ip = scan.next();
+            String name = answers[0];
+            int port = Integer.parseInt(answers[1]);
+            String ip = answers[2];
+            
             if (!Globals.getServerList().containsKey(name)) {
                 try {
                 hbSocket = new DatagramSocket(0);
