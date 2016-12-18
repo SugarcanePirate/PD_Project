@@ -124,6 +124,8 @@ public class Client implements ClientOperations{
             System.out.println("Server List received...");
             is.close();
             
+            
+            
         } catch (SocketException e) {
             System.err.println("Error creating the heart beat socket - " + e);
         }catch (ClassNotFoundException e) {
@@ -183,6 +185,8 @@ public class Client implements ClientOperations{
             oos.flush();
             
             logged = (Boolean)ois.readObject();
+            if(logged)
+                Globals.setLogged(1);
             
         } catch (IOException e) {
             System.out.println("Error - Writing login data! " + e);
@@ -209,6 +213,9 @@ public class Client implements ClientOperations{
             oos.flush();
             
             loggedOut = (Boolean)ois.readObject();
+            if(loggedOut)
+                Globals.setLogged(0);
+            
             
         } catch (IOException e) {
             System.out.println("Error - Writing command! " + e);

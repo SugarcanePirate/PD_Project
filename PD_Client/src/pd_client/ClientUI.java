@@ -189,6 +189,7 @@ public class ClientUI {
                     if(!me.login(username, password))
                         System.out.println("Login failed!");
                     
+                    
                     break;
                     
                 case "OUT":
