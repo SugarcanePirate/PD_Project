@@ -91,7 +91,7 @@ public class ServersConnectionThread extends Thread {
                 } catch (SocketException ex) {
                     Logger.getLogger(ServersConnectionThread.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                Globals.getServerList().put(name, new Server(name, ip, port));
+                Globals.getServerList().put(name, new Server(name, ip, port, hbSocket.getLocalPort()));
                 connected = 1 + " " + hbSocket.getLocalPort();
             }
 

@@ -17,13 +17,22 @@ public class Server {
     DatagramSocket hbSocket=null; //Heart beat Socket
     String name;
     String ip;
-    int port;
+    int port, hbPort;
     Thread thb;
 
-    public Server(String name, String ip, int port) {
+    public Server(String name, String ip, int port, int hbPort) {
         this.name = name;
         this.ip = ip;
         this.port = port;
+        this.hbPort = hbPort;
+    }
+
+    public int getHbPort() {
+        return hbPort;
+    }
+
+    public void setHbPort(int hbPort) {
+        this.hbPort = hbPort;
     }
 
     public Thread getThb() {

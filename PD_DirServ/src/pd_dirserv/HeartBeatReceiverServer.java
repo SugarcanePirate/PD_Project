@@ -22,7 +22,7 @@ import java.util.logging.Logger;
  */
 public class HeartBeatReceiverServer extends Thread{
     public static final int TIMEOUT = 31000;
-  public final static int HB_PORT = 6001;
+  public int HB_PORT;
     public static final int MAX_SIZE = 256;
     DatagramSocket socket =null;
     Server server;
@@ -31,6 +31,7 @@ public class HeartBeatReceiverServer extends Thread{
     public HeartBeatReceiverServer(Server server) {
 
         this.server = server;
+        HB_PORT = this.server.getHbPort();
     }
     
    
