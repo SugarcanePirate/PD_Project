@@ -20,11 +20,14 @@ public class Server {
     int port;
     Thread thb;
 
-    public Server(String name, String ip, int port) {
+    public Server(String name, String ip, int port, DatagramSocket hbSocket) {
         this.name = name;
         this.ip = ip;
         this.port = port;
+        this.hbSocket = hbSocket;
     }
+
+
 
     public Thread getThb() {
         return thb;

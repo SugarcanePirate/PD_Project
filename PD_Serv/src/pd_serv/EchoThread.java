@@ -213,7 +213,7 @@ public class EchoThread extends Thread {
                             System.out.println("File removed");
                             
                             break;
-                               case "FCNT":
+                        case "FCNT":
                             if(!logged)
                                 break;
                                 file = new File(client.getCurrentDir()+File.separator+cmd[1]);
