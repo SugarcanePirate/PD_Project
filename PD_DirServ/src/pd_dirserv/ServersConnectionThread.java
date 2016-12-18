@@ -61,6 +61,7 @@ public class ServersConnectionThread extends Thread {
             }
 
         while (true) {
+            DatagramSocket hbSocket =  null;
            
 
             packetToReceive = new DatagramPacket(buff, MAX_SIZE);
@@ -83,9 +84,15 @@ public class ServersConnectionThread extends Thread {
             name = scan.next();
             port = scan.nextInt();
             ip = scan.next();
-            if (!Globals.getServerList().containsKey(name)) {      //verifica se ja existe servidor com mesmo nome,
+            if (!Globals.getServerList().containsKey(name)) {
+                try {
+                hbSocket = new DatagramSocket(0);
+                
+                } catch (SocketException ex) {
+                    Logger.getLogger(ServersConnectionThread.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 Globals.getServerList().put(name, new Server(name, ip, port));
-                connected = 1 + " " + PORT_UDP_HB;
+                connected = 1 + " " + hbSocket.getLocalPort();
             }
 
             byte[] sendBuffer = connected.getBytes();
