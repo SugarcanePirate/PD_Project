@@ -86,7 +86,7 @@ public class Client implements ClientOperations{
     
     @Override
     public boolean connect(){
-        boolean connected = false;
+        boolean connected = true;
         String myIp = getLocalIpAddress();
         
         DatagramPacket packetToSend = null;
@@ -118,20 +118,23 @@ public class Client implements ClientOperations{
             is = new ObjectInputStream(new BufferedInputStream(byteStream));
             
             serverList = (String[]) is.readObject();
-            if(serverList.length != 0)
-                connected = true;
+            if(serverList[0].equalsIgnoreCase("not connected"))
+                connected = false;
             
             System.out.println("Server List received...");
             is.close();
             
         } catch (SocketException e) {
             System.err.println("Error creating the heart beat socket - " + e);
+            connected = false;
         }catch (ClassNotFoundException e) {
             System.err.println("Error receiving the list... - " + e);
+            connected = false;
         } catch (UnknownHostException e) {
             System.err.println("Error - " + e);
         }catch (IOException e) {
             System.err.println("Error sending/receiving the answer... - " + e);
+            connected = false;
         }
         return connected;
     }
