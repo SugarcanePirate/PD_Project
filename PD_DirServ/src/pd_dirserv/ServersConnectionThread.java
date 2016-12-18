@@ -80,11 +80,13 @@ public class ServersConnectionThread extends Thread {
             String hb = new String(data);
 
             Scanner scan = new Scanner(hb);
-
-            String name = scan.next();
-            int port = scan.nextInt();
+            String serverAnswer = new String();
+            serverAnswer = serverAnswer.trim();
+            String[] answers = serverAnswer.split(" ");
+            String name = answers[0];
+            int port = Integer.parseInt(answers[1]);
             String ip = new String();
-            ip = scan.next();
+            ip = answers[2].trim();
             if (!Globals.getServerList().containsKey(name)) {
                 try {
                 hbSocket = new DatagramSocket(0);
