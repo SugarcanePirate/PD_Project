@@ -45,9 +45,9 @@ public class HeartBeatReceiverClient  extends Thread{
         this.client = client;
         this.PORT_HB = PORT_HB;
         try {
+            byteArray = new ByteArrayOutputStream(MAX_SIZE);
             oos = new ObjectOutputStream(new BufferedOutputStream(byteArray));
             addr = InetAddress.getByName(client.getIp());
-            byteArray = new ByteArrayOutputStream(MAX_SIZE);
         } catch (IOException ex) {
             Logger.getLogger(HeartBeatReceiverClient.class.getName()).log(Level.SEVERE, null, ex);
         }
