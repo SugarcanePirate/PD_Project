@@ -58,8 +58,8 @@ public class HeartBeatReceiverClient  extends Thread{
 //        oos.writeObject(getServerList());
 //        oos.flush();
         recvBuffer = new byte[MAX_SIZE];
-        sendBuffer = byteArray.toByteArray();
-        packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, PORT_HB);
+//        sendBuffer = byteArray.toByteArray();
+//        packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, PORT_HB);
         packetToReceive = new DatagramPacket(recvBuffer, MAX_SIZE);
     }
     
@@ -124,10 +124,10 @@ public class HeartBeatReceiverClient  extends Thread{
                 oos.writeObject(getServerList());
                 oos.flush();
                 System.out.println("sending HB...");
-                
+                sendBuffer = byteArray.toByteArray();
                 //InetAddress addr = InetAddress.getByName(client.getIp());
                // packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, PORT_HB);
-                
+                packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, PORT_HB);
                 
                 socket.send(packetToSend);
                 
