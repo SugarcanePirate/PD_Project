@@ -30,7 +30,8 @@ import java.util.logging.Logger;
 public class Client implements ClientOperations{
     public static int MAX_SIZE = 5000;
     DatagramSocket connSocket = null;
-    ArrayList<Socket> serverSockets = null;
+    ArrayList<Socket> remoteServers = null;
+    Socket localServer;
     String dirServIP;
     int dirServPort;
     ObjectOutputStream oos = null;
@@ -48,7 +49,7 @@ public class Client implements ClientOperations{
         this.username = username;
         this.dirServIP = dirServIP;
         this.dirServPort = dirServPort;
-        this.serverSockets = new ArrayList<>();
+        this.remoteServers = new ArrayList<>();
     }
 
     public DatagramSocket getConnSocket() {
