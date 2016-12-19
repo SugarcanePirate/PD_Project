@@ -8,9 +8,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,7 +26,7 @@ public class ServersConnectionThread extends Thread {
 
     public final static int PORT_UDP_CONN = 6000;
     public final static int PORT_UDP_HB = 6001;
-    public static final int MAX_SIZE = 256;
+    public static final int MAX_SIZE = 5000;
     int servPort;
     String dirServIP;
     DatagramSocket socket = null;
@@ -44,12 +41,12 @@ public class ServersConnectionThread extends Thread {
     @Override
     public void run() {
         String connected = "";
-        byte[] buff = new byte[MAX_SIZE];
-        String ip;
+        
+        
         DatagramPacket packetToSend = null;
         DatagramPacket packetToReceive;
-        String name;
-        int port;
+        
+        
         InetAddress addr = null;
         
          try {
@@ -61,6 +58,7 @@ public class ServersConnectionThread extends Thread {
             }
 
         while (true) {
+            byte[] buff = new byte[MAX_SIZE];
             DatagramSocket hbSocket =  null;
            
 
@@ -77,13 +75,16 @@ public class ServersConnectionThread extends Thread {
 
             byte[] data = packetToReceive.getData();  //recebe nome do servidor e os dados ip/porto
 
-            String hb = new String(data);
+           
 
-            Scanner scan = new Scanner(hb);
-
-            name = scan.next();
-            port = scan.nextInt();
-            ip = scan.next();
+            
+            String serverAnswer = new String(data);
+            serverAnswer = serverAnswer.trim();
+            String[] answers = serverAnswer.split(" ");
+            String name = answers[0];
+            int port = Integer.parseInt(answers[1]);
+            String ip = new String();
+            ip = answers[2].trim();
             if (!Globals.getServerList().containsKey(name)) {
                 try {
                 hbSocket = new DatagramSocket(0);
