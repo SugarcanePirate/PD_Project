@@ -14,13 +14,9 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
-import java.util.Scanner;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static pd_dirserv.ClientsConnectionThread.MAX_SIZE;
-import static pd_dirserv.ClientsConnectionThread.PORT_HB;
-import static pd_dirserv.ClientsConnectionThread.PORT_UDP_CONN;
 
 /**
  *
@@ -51,27 +47,26 @@ public class HeartBeatReceiverClient  extends Thread{
    }
    
     public void packetInitialization() throws IOException {
-        byteArray = new ByteArrayOutputStream(MAX_SIZE);
-        oos = new ObjectOutputStream(new BufferedOutputStream(byteArray));
+        
+        
 
 //        oos.flush();
 //        oos.writeObject(getServerList());
 //        oos.flush();
         recvBuffer = new byte[MAX_SIZE];
-        sendBuffer = byteArray.toByteArray();
-        addr = InetAddress.getByName(client.getIp());
-        packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, PORT_HB);
+//        sendBuffer = byteArray.toByteArray();
+//        packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, PORT_HB);
         packetToReceive = new DatagramPacket(recvBuffer, MAX_SIZE);
     }
     
     public String[] getServerList(){
      int i=0;
-     String[] list = null;
+    String[] list = null;
     if(Globals.getServerList().size() > 0){
     list = new String[Globals.getServerList().size()];
     for(String key: Globals.getServerList().keySet()){
         Server s = Globals.getServerList().get(key);
-        list[i] = " " + s.getName() + " " + s.getIp() + " " + s.getPort();
+        list[i] = /*" " +*/ s.getName() + " " + s.getIp() + " " + s.getPort();
         i++;
     }
     }else{
@@ -91,8 +86,13 @@ public class HeartBeatReceiverClient  extends Thread{
             socket = new DatagramSocket(PORT_HB);
             
             client.setHbSocket(socket);
+//            byteArray = new ByteArrayOutputStream(MAX_SIZE);
+//            oos = new ObjectOutputStream(new BufferedOutputStream(byteArray));
+            addr = InetAddress.getByName(client.getIp());
         } catch (SocketException ex) {
             Logger.getLogger(HeartBeatReceiverServer.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(HeartBeatReceiverClient.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         while(true){
@@ -115,15 +115,17 @@ public class HeartBeatReceiverClient  extends Thread{
                 int logged = Integer.parseInt(answers[1]);
                 
                 updateClientInfo(name,logged);
-                
+                byteArray = new ByteArrayOutputStream(MAX_SIZE);
+                oos = new ObjectOutputStream(byteArray);
+                oos.reset();
                 oos.flush();
-                oos.writeObject(getServerList());
+                oos.writeUnshared(getServerList());
                 oos.flush();
                 System.out.println("sending HB...");
-                
+                sendBuffer = byteArray.toByteArray();
                 //InetAddress addr = InetAddress.getByName(client.getIp());
                // packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, PORT_HB);
-                
+                packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, PORT_HB);
                 
                 socket.send(packetToSend);
                 
