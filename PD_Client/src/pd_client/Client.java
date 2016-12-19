@@ -20,8 +20,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.HashMap;
 
 /**
  *
@@ -30,8 +29,8 @@ import java.util.logging.Logger;
 public class Client implements ClientOperations{
     public static int MAX_SIZE = 5000;
     DatagramSocket connSocket = null;
-    ArrayList<Socket> remoteServers = null;
-    Socket localServer;
+    HashMap<String, Server> remoteServers = null;
+    Server localServer = null;
     String dirServIP;
     int dirServPort;
     ObjectOutputStream oos = null;
@@ -49,7 +48,7 @@ public class Client implements ClientOperations{
         this.username = username;
         this.dirServIP = dirServIP;
         this.dirServPort = dirServPort;
-        this.remoteServers = new ArrayList<>();
+        this.remoteServers = new HashMap<>();
     }
 
     public DatagramSocket getConnSocket() {
@@ -172,6 +171,9 @@ public class Client implements ClientOperations{
             
             registered = (Boolean)ois.readObject();
             
+            if(registered)
+                remoteServers.put(serverData[0], new Server(serverData[0],s,oos,ois));
+            
         } catch (IOException ex) {
             System.out.println("Error - Connecting to socket (Server: '" + serverIp + "').");
             registered = false;
@@ -184,19 +186,27 @@ public class Client implements ClientOperations{
     }
     
     @Override
-    public boolean login(String username, String password){
+    public boolean login(String username, String password, String serverName){
         boolean logged = false;
         String msg = "LOG " + username + " " + password;
         
        
         try {
-            oos.flush();
-            oos.writeObject(msg);
-            oos.flush();
+            if(!remoteServers.containsKey(serverName))
+                return false;
             
-            logged = (Boolean)ois.readObject();
-            if(logged)
+            Server server = remoteServers.get(serverName);
+            ObjectOutputStream auxOos = server.getOos();
+            ObjectInputStream auxOis = server.getOis();
+            auxOos.flush();
+            auxOos.writeObject(msg);
+            auxOos.flush();
+            
+            logged = (Boolean)auxOis.readObject();
+            if(logged){
                 Globals.setLogged(1);
+                localServer = new Server(remoteServers.remove(serverName));
+            }
             
         } catch (IOException e) {
             System.out.println("Error - Writing login data! " + e);
@@ -218,11 +228,11 @@ public class Client implements ClientOperations{
         
        
         try {
-            oos.flush();
-            oos.writeObject(msg);
-            oos.flush();
+            localServer.getOos().flush();
+            localServer.getOos().writeObject(msg);
+            localServer.getOos().flush();
             
-            loggedOut = (Boolean)ois.readObject();
+            loggedOut = (Boolean)localServer.getOis().readObject();
             if(loggedOut)
                 Globals.setLogged(0);
             

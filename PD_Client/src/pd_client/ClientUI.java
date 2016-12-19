@@ -182,14 +182,14 @@ public class ClientUI {
                     break;
                     
                 case "LOG":
-                    if(commands.length != 3)
+                    if(commands.length != 4)
                         break;
                     
                     
                     username = commands[1];
                     password = commands[2];
-                    
-                    if(!me.login(username, password))
+                    String serverName = commands[3];
+                    if(!me.login(username, password, serverName))
                         System.out.println("Login failed!");
                     
                     break;
