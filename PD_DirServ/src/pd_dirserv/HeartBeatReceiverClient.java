@@ -36,6 +36,9 @@ public class HeartBeatReceiverClient  extends Thread{
     ByteArrayOutputStream byteArray = null;
     DatagramPacket packetToSend = null;
     DatagramPacket packetToReceive = null;
+    InetAddress addr = null;
+    byte[] sendBuffer;
+    byte[] recvBuffer;
     
 
     public HeartBeatReceiverClient(Client client, int PORT_HB) {
@@ -51,12 +54,12 @@ public class HeartBeatReceiverClient  extends Thread{
         byteArray = new ByteArrayOutputStream(MAX_SIZE);
         oos = new ObjectOutputStream(new BufferedOutputStream(byteArray));
 
-        oos.flush();
-        oos.writeObject(getServerList());
-        oos.flush();
-        byte[] recvBuffer = new byte[MAX_SIZE];
-        byte[] sendBuffer = byteArray.toByteArray();
-        InetAddress addr = InetAddress.getByName(client.getIp());
+//        oos.flush();
+//        oos.writeObject(getServerList());
+//        oos.flush();
+        recvBuffer = new byte[MAX_SIZE];
+        sendBuffer = byteArray.toByteArray();
+        addr = InetAddress.getByName(client.getIp());
         packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, PORT_HB);
         packetToReceive = new DatagramPacket(recvBuffer, MAX_SIZE);
     }
@@ -84,18 +87,17 @@ public class HeartBeatReceiverClient  extends Thread{
         
          
         try {
-            packetInitialization();
+            
             socket = new DatagramSocket(PORT_HB);
             
             client.setHbSocket(socket);
         } catch (SocketException ex) {
             Logger.getLogger(HeartBeatReceiverServer.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(HeartBeatReceiverClient.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         while(true){
         try{
+            packetInitialization();
             socket.setSoTimeout(TIMEOUT);
             System.out.println("Receiving Heartbeat...");
             
@@ -118,9 +120,9 @@ public class HeartBeatReceiverClient  extends Thread{
                 oos.writeObject(getServerList());
                 oos.flush();
                 System.out.println("sending HB...");
-                byte[] sendBuffer = byteArray.toByteArray();
-                InetAddress addr = InetAddress.getByName(client.getIp());
-                packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, PORT_HB);
+                
+                //InetAddress addr = InetAddress.getByName(client.getIp());
+               // packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, PORT_HB);
                 
                 
                 socket.send(packetToSend);
