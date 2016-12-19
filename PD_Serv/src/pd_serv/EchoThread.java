@@ -6,6 +6,7 @@
 package pd_serv;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -30,7 +31,8 @@ public class EchoThread extends Thread {
     ObjectInputStream ois = null;
     ClientData client;
     Map <String,ClientData> clientdata;
-
+    public static final int MAX_CHUNCK_SIZE = 10000;
+    
     public EchoThread(Socket clientSocket,Map <String,ClientData> clientmap,ObjectOutputStream oos,ObjectInputStream ois, ClientData client) {
         this.socket = clientSocket;
         logged = false;
@@ -102,6 +104,31 @@ public class EchoThread extends Thread {
          
              return true;
          
+     }
+     
+     public boolean fileCopy(String dest,String fileName, long offset){
+        
+       String requestedCanonicalFilePath = null;
+        FileInputStream requestedFileInputStream = null;
+        byte [] fileChunck = new byte[MAX_CHUNCK_SIZE];
+        int nbytes;        
+        
+        fileName = fileName.trim();
+        
+        try{
+
+            /*
+             * Verifica se o ficheiro solicitado existe e encontra-se por baixo da localDirectory 
+             */
+            requestedCanonicalFilePath = new File(localDirectory+File.separator+fileName).getCanonicalPath();
+
+            if(!requestedCanonicalFilePath.startsWith(localDirectory.getCanonicalPath()+File.separator)){
+                System.out.println("Nao e' permitido aceder ao ficheiro " + requestedCanonicalFilePath + "!");
+                System.out.println("A directoria de base nao corresponde a " + localDirectory.getCanonicalPath()+"!");
+                return null;
+            }
+        
+
      }
      
     public void run() {
@@ -231,6 +258,25 @@ public class EchoThread extends Thread {
                              System.out.println("Content sent");
                             
                             break;
+                            case "FCPY":
+                            if(!logged)
+//                                break;
+//                                file = new File(client.getCurrentDir()+File.separator+cmd[1]);
+//                                Charset charset = Charset.forName("ISO-8859-1");
+//                                
+//                                List<String> lines = Files.readAllLines(file.toPath(), charset);
+//                                String [] fileCnt=new String[lines.size()];
+//                                for(int i=0;i<lines.size();i++)
+//                                    fileCnt[i]=lines.get(i);
+//                                
+//                             oos.flush();
+//                             oos.writeObject(fileCnt);
+//                             oos.flush();
+//                             
+//                             System.out.println("Content sent");
+                            
+                            break;
+                            
                     default:
                         break;
                 }
