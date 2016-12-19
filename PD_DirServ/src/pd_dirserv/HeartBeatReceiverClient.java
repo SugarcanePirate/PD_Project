@@ -119,7 +119,7 @@ public class HeartBeatReceiverClient  extends Thread{
                 int logged = Integer.parseInt(answers[1]);
                 
                 updateClientInfo(name,logged);
-                
+                oos.reset();
                 oos.flush();
                 oos.writeObject(getServerList());
                 oos.flush();
