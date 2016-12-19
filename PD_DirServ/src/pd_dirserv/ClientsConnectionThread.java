@@ -26,7 +26,7 @@ import java.util.logging.Logger;
  */
 public class ClientsConnectionThread extends Thread{
     public final static int PORT_UDP_CONN = 6002;
-    public final static int PORT_HB = 6003;
+    public int PORT_HB;
     public static final int MAX_SIZE = 5000;
     int myPort;
     DatagramSocket socketToClient =null;
@@ -37,7 +37,6 @@ public class ClientsConnectionThread extends Thread{
     public ClientsConnectionThread(String myIp, int myPort) {
         this.myIp = myIp;
         this.myPort = myPort;
-        
     }
     
    
@@ -61,6 +60,7 @@ public class ClientsConnectionThread extends Thread{
             Logger.getLogger(ClientsConnectionThread.class.getName()).log(Level.SEVERE, null, ex);
         }
         while (true) {
+            DatagramSocket hbSocket =  null;
             try {
                 
 
@@ -86,10 +86,10 @@ public class ClientsConnectionThread extends Thread{
                 os = new ObjectOutputStream(new BufferedOutputStream(byteArray));
 
                 if (!Globals.getClientList().containsKey(name)) {     
-                    client = new Client(name, clientIp);
                     
-                    connected = 1 + " " + PORT_HB;
-
+                    hbSocket = new DatagramSocket(0);
+                    connected = 1 + " " + hbSocket.getLocalPort();
+                    
                     os.flush();
                     os.writeObject(connected);
                     os.flush();
@@ -97,7 +97,7 @@ public class ClientsConnectionThread extends Thread{
                     packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, PORT_UDP_CONN); 
                     socketToClient.send(packetToSend);
                     System.out.println("ENTROU : " + name);
-                    
+                    client = new Client(name, clientIp, hbSocket);
                     client.thb = new HeartBeatReceiverClient(client,PORT_HB);
                     client.thb.start();                    
                     Globals.getClientList().put(name,client);
