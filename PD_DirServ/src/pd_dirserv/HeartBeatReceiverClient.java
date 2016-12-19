@@ -86,8 +86,8 @@ public class HeartBeatReceiverClient  extends Thread{
             socket = new DatagramSocket(PORT_HB);
             
             client.setHbSocket(socket);
-            byteArray = new ByteArrayOutputStream(MAX_SIZE);
-            oos = new ObjectOutputStream(new BufferedOutputStream(byteArray));
+//            byteArray = new ByteArrayOutputStream(MAX_SIZE);
+//            oos = new ObjectOutputStream(new BufferedOutputStream(byteArray));
             addr = InetAddress.getByName(client.getIp());
         } catch (SocketException ex) {
             Logger.getLogger(HeartBeatReceiverServer.class.getName()).log(Level.SEVERE, null, ex);
@@ -115,6 +115,8 @@ public class HeartBeatReceiverClient  extends Thread{
                 int logged = Integer.parseInt(answers[1]);
                 
                 updateClientInfo(name,logged);
+                byteArray = new ByteArrayOutputStream(MAX_SIZE);
+                oos = new ObjectOutputStream(byteArray);
                 oos.reset();
                 oos.flush();
                 oos.writeUnshared(getServerList());
