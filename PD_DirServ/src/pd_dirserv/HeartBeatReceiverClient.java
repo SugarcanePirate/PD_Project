@@ -121,7 +121,7 @@ public class HeartBeatReceiverClient  extends Thread{
                 updateClientInfo(name,logged);
                 oos.reset();
                 oos.flush();
-                oos.writeObject(getServerList());
+                oos.writeUnshared(getServerList());
                 oos.flush();
                 System.out.println("sending HB...");
                 sendBuffer = byteArray.toByteArray();
