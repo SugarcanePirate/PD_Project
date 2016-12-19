@@ -14,13 +14,9 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
-import java.util.Scanner;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static pd_dirserv.ClientsConnectionThread.MAX_SIZE;
-import static pd_dirserv.ClientsConnectionThread.PORT_HB;
-import static pd_dirserv.ClientsConnectionThread.PORT_UDP_CONN;
 
 /**
  *
@@ -63,19 +59,19 @@ public class HeartBeatReceiverClient  extends Thread{
         packetToReceive = new DatagramPacket(recvBuffer, MAX_SIZE);
     }
     
-    public String[] getServerList(){
+    public ArrayList<String> getServerList(){
      int i=0;
-     String[] list = null;
+    ArrayList<String> list = null;
     if(Globals.getServerList().size() > 0){
-    list = new String[Globals.getServerList().size()];
+    list = new ArrayList<>(Globals.getServerList().size());
     for(String key: Globals.getServerList().keySet()){
         Server s = Globals.getServerList().get(key);
-        list[i] = " " + s.getName() + " " + s.getIp() + " " + s.getPort();
+        list.add(/*" " +*/ s.getName() + " " + s.getIp() + " " + s.getPort());
         i++;
     }
     }else{
-        list = new String[1] ;
-        list[0] = "No servers...";
+        list = new ArrayList<>(1) ;
+        list.add("No servers...");
     }
     return list;
 }
