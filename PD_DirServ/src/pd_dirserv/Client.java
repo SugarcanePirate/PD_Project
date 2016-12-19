@@ -35,9 +35,10 @@ public class Client {
     }
     
 
-    public Client(String name, String ip) {
+    public Client(String name, String ip, DatagramSocket hbSocket) {
         this.ip = ip;
         this.name = name;
+        this.hbSocket = hbSocket;
     }
 
     public DatagramSocket getHbSocket() {

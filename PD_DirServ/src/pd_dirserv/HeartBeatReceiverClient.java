@@ -26,7 +26,7 @@ public class HeartBeatReceiverClient  extends Thread{
     public static final int TIMEOUT = 11000;
     public int PORT_HB;
     public static final int MAX_SIZE = 5000;
-    DatagramSocket socket = null;
+    DatagramSocket hbSocket = null;
     Client client;
     ObjectOutputStream oos = null;
     ByteArrayOutputStream byteArray = null;
@@ -37,9 +37,10 @@ public class HeartBeatReceiverClient  extends Thread{
     byte[] recvBuffer;
     
 
-    public HeartBeatReceiverClient(Client client, int PORT_HB) {
+    public HeartBeatReceiverClient(Client client, int PORT_HB, DatagramSocket hbSocket) {
         this.client = client;
         this.PORT_HB = PORT_HB;
+        this.hbSocket = hbSocket;
     }
     
    public void updateClientInfo(String name, int logged){
@@ -83,14 +84,12 @@ public class HeartBeatReceiverClient  extends Thread{
          
         try {
             
-            socket = new DatagramSocket(PORT_HB);
             
-            client.setHbSocket(socket);
+            
+            client.setHbSocket(hbSocket);
 //            byteArray = new ByteArrayOutputStream(MAX_SIZE);
 //            oos = new ObjectOutputStream(new BufferedOutputStream(byteArray));
             addr = InetAddress.getByName(client.getIp());
-        } catch (SocketException ex) {
-            Logger.getLogger(HeartBeatReceiverServer.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(HeartBeatReceiverClient.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -98,10 +97,10 @@ public class HeartBeatReceiverClient  extends Thread{
         while(true){
         try{
             packetInitialization();
-            socket.setSoTimeout(TIMEOUT);
+            hbSocket.setSoTimeout(TIMEOUT);
             System.out.println("Receiving Heartbeat...");
             
-            socket.receive(packetToReceive);
+            hbSocket.receive(packetToReceive);
             byte[] data = packetToReceive.getData();
 
                 System.out.println("Reading client data");
@@ -127,7 +126,7 @@ public class HeartBeatReceiverClient  extends Thread{
                // packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, PORT_HB);
                 packetToSend = new DatagramPacket(sendBuffer, sendBuffer.length, addr, PORT_HB);
                 
-                socket.send(packetToSend);
+                hbSocket.send(packetToSend);
                 
                 System.out.println("HB sent...");
                 
