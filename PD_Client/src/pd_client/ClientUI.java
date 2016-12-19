@@ -6,6 +6,7 @@
 package pd_client;
 
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -111,7 +112,7 @@ public class ClientUI {
 //            System.out.println((i+1) + " - " + list[i]);
 //    }
     
-    public void printList(String[] l){
+    public void printList(String[]  l){
         for (String line : l) {
             System.out.println(line);
         }

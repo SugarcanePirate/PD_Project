@@ -14,6 +14,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,10 +31,12 @@ public class HeartBeatThread extends Thread{
     DatagramPacket packetreceive;
     String dirServIP;
     String hbMsg;
+    String[]  serverlist = null;
     ByteArrayInputStream byteStream = null;
     ObjectInputStream is = null;
-    String [] serverlist;
-    byte[] recvbuf = new byte[MAX_SIZE];
+    
+    byte[] recvbuf;
+    
     
     public HeartBeatThread(String name, String dirServIP, int PORT_HB) {
         
@@ -46,38 +49,49 @@ public class HeartBeatThread extends Thread{
     }
     
     public void packetInitialization(){
-        byte[] sendbuf = hbMsg.getBytes();
+        
        
         try {
             addr = InetAddress.getByName(dirServIP);
         } catch (UnknownHostException e) {
             System.err.println("Error - " + e);
         }
-        packetsend = new DatagramPacket(sendbuf, sendbuf.length, addr, PORT_HB);
-        packetreceive = new DatagramPacket(recvbuf, MAX_SIZE);
+        
+        
     }
     
     @Override
     public void run(){
         packetInitialization();
         try {
+            recvbuf = new byte[MAX_SIZE];
             this.hbSocket = new DatagramSocket(PORT_HB);
+            
+     
         } catch (SocketException ex) {
             Logger.getLogger(HeartBeatThread.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(HeartBeatThread.class.getName()).log(Level.SEVERE, null, ex);
         }
+        byte[] sendbuf = hbMsg.getBytes();
         while(true){
             try {
                 Thread.sleep(5000);
+                recvbuf = new byte[MAX_SIZE];
                 System.out.println("Sending HearBeat...");
+                packetsend = new DatagramPacket(sendbuf, sendbuf.length, addr, PORT_HB);
                 hbSocket.send(packetsend);
                 System.out.println("HearBeat sent...");
+               
+                packetreceive = new DatagramPacket(recvbuf, MAX_SIZE);
                 hbSocket.receive(packetreceive);
-                System.out.println("Server List received...");
                 byteStream = new ByteArrayInputStream(recvbuf);
-                is = new ObjectInputStream(new BufferedInputStream(byteStream));
+            is = new ObjectInputStream(byteStream);
+                System.out.println("Server List received...");
                 
-
-                serverlist = (String[]) is.readObject();
+                
+                
+                serverlist = (String[]) is.readUnshared();
                 Globals.setServerList(serverlist);
     
                 
