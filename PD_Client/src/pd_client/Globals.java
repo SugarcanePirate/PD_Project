@@ -5,15 +5,17 @@
  */
 package pd_client;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author David
  */
-public final class Globals {
+public class Globals {
     private static String[] serverList;
     private static int logged = 0;
 
-    public static String[] getServerList(){
+    public static String[]  getServerList(){
         return serverList;
     }
 
@@ -25,7 +27,7 @@ public final class Globals {
         Globals.logged = logged;
     }
     
-    public static void setServerList( String[] serverList ){
+    public static void setServerList( String[]  serverList ){
         Globals.serverList = serverList; 
     }
 }
