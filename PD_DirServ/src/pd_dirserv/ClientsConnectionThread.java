@@ -88,7 +88,8 @@ public class ClientsConnectionThread extends Thread{
                 if (!Globals.getClientList().containsKey(name)) {     
                     
                     hbSocket = new DatagramSocket(0);
-                    connected = 1 + " " + hbSocket.getLocalPort();
+                    PORT_HB  = hbSocket.getLocalPort();
+                    connected = 1 + " " + PORT_HB;
                     
                     os.flush();
                     os.writeObject(connected);
