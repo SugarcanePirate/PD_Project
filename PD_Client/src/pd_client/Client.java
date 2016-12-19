@@ -151,7 +151,7 @@ public class Client implements ClientOperations{
     public boolean register(String pass, int server){
         Socket s = null;
         boolean registered = false;
-        
+        serverList = Globals.getServerList();
         String serverLine = serverList[server-1];
         serverLine = serverLine.trim();
         String[] serverData = serverLine.split(" ");
