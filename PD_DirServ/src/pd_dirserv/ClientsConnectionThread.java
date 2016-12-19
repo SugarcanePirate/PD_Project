@@ -99,7 +99,7 @@ public class ClientsConnectionThread extends Thread{
                     socketToClient.send(packetToSend);
                     System.out.println("ENTROU : " + name);
                     client = new Client(name, clientIp, hbSocket);
-                    client.thb = new HeartBeatReceiverClient(client,PORT_HB);
+                    client.thb = new HeartBeatReceiverClient(client,PORT_HB, hbSocket);
                     client.thb.start();                    
                     Globals.getClientList().put(name,client);
                 } else {
