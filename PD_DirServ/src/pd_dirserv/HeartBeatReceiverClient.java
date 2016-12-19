@@ -59,19 +59,19 @@ public class HeartBeatReceiverClient  extends Thread{
         packetToReceive = new DatagramPacket(recvBuffer, MAX_SIZE);
     }
     
-    public ArrayList<String> getServerList(){
+    public String[] getServerList(){
      int i=0;
-    ArrayList<String> list = null;
+    String[] list = null;
     if(Globals.getServerList().size() > 0){
-    list = new ArrayList<>(Globals.getServerList().size());
+    list = new String[Globals.getServerList().size()];
     for(String key: Globals.getServerList().keySet()){
         Server s = Globals.getServerList().get(key);
-        list.add(/*" " +*/ s.getName() + " " + s.getIp() + " " + s.getPort());
+        list[i] = /*" " +*/ s.getName() + " " + s.getIp() + " " + s.getPort();
         i++;
     }
     }else{
-        list = new ArrayList<>(1) ;
-        list.add("No servers...");
+        list = new String[1] ;
+        list[0] = "No servers...";
     }
     return list;
 }
