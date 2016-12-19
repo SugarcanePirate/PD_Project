@@ -44,13 +44,6 @@ public class HeartBeatReceiverClient  extends Thread{
     public HeartBeatReceiverClient(Client client, int PORT_HB) {
         this.client = client;
         this.PORT_HB = PORT_HB;
-        try {
-            byteArray = new ByteArrayOutputStream(MAX_SIZE);
-            oos = new ObjectOutputStream(new BufferedOutputStream(byteArray));
-            addr = InetAddress.getByName(client.getIp());
-        } catch (IOException ex) {
-            Logger.getLogger(HeartBeatReceiverClient.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
     
    public void updateClientInfo(String name, int logged){
@@ -97,8 +90,13 @@ public class HeartBeatReceiverClient  extends Thread{
             socket = new DatagramSocket(PORT_HB);
             
             client.setHbSocket(socket);
+            byteArray = new ByteArrayOutputStream(MAX_SIZE);
+            oos = new ObjectOutputStream(new BufferedOutputStream(byteArray));
+            addr = InetAddress.getByName(client.getIp());
         } catch (SocketException ex) {
             Logger.getLogger(HeartBeatReceiverServer.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(HeartBeatReceiverClient.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         while(true){
