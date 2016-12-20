@@ -9,11 +9,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -35,7 +38,7 @@ public class EchoThread extends Thread {
     ObjectInputStream ois = null;
     ClientData client;
     Map <String,ClientData> clientdata;
-    public static final int MAX_CHUNCK_SIZE = 10000;
+    public static final int MAX_CHUNCK_SIZE = 1000;
     
     public EchoThread(Socket clientSocket,Map <String,ClientData> clientmap,ObjectOutputStream oos,ObjectInputStream ois, ClientData client) {
         this.socket = clientSocket;
@@ -110,6 +113,55 @@ public class EchoThread extends Thread {
          
      }
      
+     public boolean fileCopyToServer(String filePath){
+        File tempDir = new File(client.getHomeDir()+File.separator+"Downloads");
+        String localFilePath = "";
+        FileOutputStream localFileOutputStream = null;
+        InputStream in = null;
+        byte []fileChunck = new byte[MAX_CHUNCK_SIZE];
+        int nbytes;  
+        ObjectOutputStream out = null;
+        String pattern = Pattern.quote(System.getProperty("file.separator"));
+        
+        
+     
+        try {
+   
+            if(!tempDir.exists())
+                tempDir.mkdir();
+            
+            if(!tempDir.isDirectory())
+                return false;
+                
+            if(!tempDir.canWrite())
+                return false;
+            
+            String[] filePathArray = filePath.trim().split(pattern);
+            String fileName = filePathArray[filePathArray.length-1];
+            
+            localFilePath = tempDir.getCanonicalPath()+File.separator+fileName;
+            localFileOutputStream = new FileOutputStream(localFilePath);
+            
+            
+            while((nbytes = in.read(fileChunck)) > 0){                    
+                    localFileOutputStream.write(fileChunck, 0, nbytes);
+//                   if(nbytes < CHUNCK_MAX_SIZE)
+//                        break;
+            }
+        return true;
+     }  catch (IOException ex) {
+            Logger.getLogger(EchoThread.class.getName()).log(Level.SEVERE, null, ex);
+        }finally{
+            if(localFileOutputStream != null){
+                try{
+                    localFileOutputStream.close();
+                }catch(IOException e){}
+            }
+   }
+          return true;
+}
+     
+     
      public boolean fileCopyToClient(String filePath){
         BufferedReader in;
         OutputStream out=null;
@@ -136,12 +188,19 @@ public class EchoThread extends Thread {
                         out.flush();
                                                 
                     }     
+
+                     
         }catch(FileNotFoundException e){   //Subclasse de IOException                 
                     System.out.println("Ocorreu a excepcao {" + e + "} ao tentar abrir o ficheiro " + requestedCanonicalFilePath + "!");                   
                 }catch(IOException e){
                     System.out.println("Ocorreu a excepcao de E/S: \n\t" + e);                       
                 }
-                    
+                       if(requestedFileInputStream != null){
+                    try {
+                        requestedFileInputStream.close();
+                    } catch (IOException ex) {}
+                }
+  
             return true;
      }
      
@@ -278,9 +337,22 @@ public class EchoThread extends Thread {
                                 
                             boolean cp = fileCopyToClient(cmd[1]); 
                             
-                            if(cp)
-                             System.out.println("client copy sucess");
+                            if(!cp)
                              System.out.println("client copy fail");
+                            
+                             System.out.println("client copy sucess");
+                            break;
+                            
+                         case "FCPY2":
+                            if(!logged)
+                                break;
+                                
+                            boolean cp2 = fileCopyToServer(cmd[1]); 
+                            
+                            if(!cp2)
+                             System.out.println("client copy fail");
+                            
+                             System.out.println("client copy sucess");
                             break;
                             
                     default:
