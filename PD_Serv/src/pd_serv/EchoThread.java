@@ -12,12 +12,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.List;
@@ -135,6 +134,8 @@ public class EchoThread extends Thread {
                 
             if(!tempDir.canWrite())
                 return false;
+            client.getSocket().setSoTimeout(5000);
+            in = client.getSocket().getInputStream();
             
             String[] filePathArray = filePath.trim().split(pattern);
             String fileName = filePathArray[filePathArray.length-1];
@@ -145,11 +146,13 @@ public class EchoThread extends Thread {
             
             while((nbytes = in.read(fileChunck)) > 0){                    
                     localFileOutputStream.write(fileChunck, 0, nbytes);
-//                   if(nbytes < CHUNCK_MAX_SIZE)
+//                   if(nbytes < MAX_CHUNCK_SIZE)
 //                        break;
             }
         return true;
-     }  catch (IOException ex) {
+     }catch (SocketTimeoutException ex) {
+            
+        }  catch (IOException ex) {
             Logger.getLogger(EchoThread.class.getName()).log(Level.SEVERE, null, ex);
         }finally{
             if(localFileOutputStream != null){
@@ -179,7 +182,7 @@ public class EchoThread extends Thread {
                     }
                     requestedFileInputStream = new FileInputStream(requestedCanonicalFilePath);
                     System.out.println("Ficheiro " + requestedCanonicalFilePath + " aberto para leitura.");
-                    
+                   
                     out=client.getSocket().getOutputStream();
                     
                     while((nbytes = requestedFileInputStream.read(fileChunck))>0){                        
