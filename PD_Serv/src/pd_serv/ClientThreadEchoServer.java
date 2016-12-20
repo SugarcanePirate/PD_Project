@@ -92,7 +92,7 @@ public class ClientThreadEchoServer extends Thread{
 
                 if (!clientdata.containsKey(name)) {   
                     //verifica se ja existe cliente com o mesmo nome
-                clientdata.put(name,new ClientData(name, password));
+                clientdata.put(name,new ClientData(name, password,socket));
                             // nova thread para cada cliente
                 clientdata.get(name).setHomeDir(makeClientDir(name));
                 clientdata.get(name).setCurrentDir(clientdata.get(name).getHomeDir());

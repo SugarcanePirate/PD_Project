@@ -5,11 +5,15 @@
  */
 package pd_serv;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -106,29 +110,39 @@ public class EchoThread extends Thread {
          
      }
      
-     public boolean fileCopy(String dest,String fileName, long offset){
-        
-       String requestedCanonicalFilePath = null;
+     public boolean fileCopyToClient(String filePath){
+        BufferedReader in;
+        OutputStream out=null;
+        Socket socketToClient;        
+        byte []fileChunck = new byte[MAX_CHUNCK_SIZE];
+        int nbytes;
+        String requestedFileName, requestedCanonicalFilePath = null;
         FileInputStream requestedFileInputStream = null;
-        byte [] fileChunck = new byte[MAX_CHUNCK_SIZE];
-        int nbytes;        
-        
-        fileName = fileName.trim();
         
         try{
+        requestedCanonicalFilePath = new File(client.homeDir+File.separator+filePath).getCanonicalPath();
 
-            /*
-             * Verifica se o ficheiro solicitado existe e encontra-se por baixo da localDirectory 
-             */
-            requestedCanonicalFilePath = new File(localDirectory+File.separator+fileName).getCanonicalPath();
-
-            if(!requestedCanonicalFilePath.startsWith(localDirectory.getCanonicalPath()+File.separator)){
-                System.out.println("Nao e' permitido aceder ao ficheiro " + requestedCanonicalFilePath + "!");
-                System.out.println("A directoria de base nao corresponde a " + localDirectory.getCanonicalPath()+"!");
-                return null;
-            }
-        
-
+                    if(!requestedCanonicalFilePath.startsWith(client.homeDir+File.separator)){
+                        return false;
+                    }
+                    requestedFileInputStream = new FileInputStream(requestedCanonicalFilePath);
+                    System.out.println("Ficheiro " + requestedCanonicalFilePath + " aberto para leitura.");
+                    
+                    out=client.getSocket().getOutputStream();
+                    
+                    while((nbytes = requestedFileInputStream.read(fileChunck))>0){                        
+                        
+                        out.write(fileChunck, 0, nbytes);
+                        out.flush();
+                                                
+                    }     
+        }catch(FileNotFoundException e){   //Subclasse de IOException                 
+                    System.out.println("Ocorreu a excepcao {" + e + "} ao tentar abrir o ficheiro " + requestedCanonicalFilePath + "!");                   
+                }catch(IOException e){
+                    System.out.println("Ocorreu a excepcao de E/S: \n\t" + e);                       
+                }
+                    
+            return true;
      }
      
     public void run() {
@@ -258,23 +272,15 @@ public class EchoThread extends Thread {
                              System.out.println("Content sent");
                             
                             break;
-                            case "FCPY":
+                            case "FCPY1":
                             if(!logged)
-//                                break;
-//                                file = new File(client.getCurrentDir()+File.separator+cmd[1]);
-//                                Charset charset = Charset.forName("ISO-8859-1");
-//                                
-//                                List<String> lines = Files.readAllLines(file.toPath(), charset);
-//                                String [] fileCnt=new String[lines.size()];
-//                                for(int i=0;i<lines.size();i++)
-//                                    fileCnt[i]=lines.get(i);
-//                                
-//                             oos.flush();
-//                             oos.writeObject(fileCnt);
-//                             oos.flush();
-//                             
-//                             System.out.println("Content sent");
+                                break;
+                                
+                            boolean cp = fileCopyToClient(cmd[1]); 
                             
+                            if(cp)
+                             System.out.println("client copy sucess");
+                             System.out.println("client copy fail");
                             break;
                             
                     default:

@@ -5,6 +5,8 @@
  */
 package pd_serv;
 
+import java.net.Socket;
+
 /**
  *
  * @author David
@@ -13,6 +15,15 @@ public class ClientData {
     String name;
     String password;
     String homeDir,currentDir;
+    Socket socket;
+
+    public Socket getSocket() {
+        return socket;
+    }
+
+    public void setSocket(Socket socket) {
+        this.socket = socket;
+    }
 
     public String getHomeDir() {
         return homeDir;
@@ -30,9 +41,10 @@ public class ClientData {
         this.currentDir = currentDir;
     }
 
-    public ClientData(String name, String password) {
+    public ClientData(String name, String password,Socket socket) {
         this.name = name;
         this.password = password;
+    this.socket = socket;
     }
 
     public String getName() {
