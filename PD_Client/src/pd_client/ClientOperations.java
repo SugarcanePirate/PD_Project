@@ -20,4 +20,5 @@ public interface ClientOperations {
     public boolean changeDir(String dirName);
     public String[] getFileContent(String fileName);
     public boolean removeFile(String fileName);
+    public boolean copyFile(String filePath, String server_origin, String server_destination);
 }
