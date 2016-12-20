@@ -6,10 +6,17 @@
 package pd_client;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Inet4Address;
@@ -17,10 +24,15 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -28,6 +40,9 @@ import java.util.HashMap;
  */
 public class Client implements ClientOperations{
     public static int MAX_SIZE = 5000;
+    public static int TIMEOUT = 5;
+    
+    public static int CHUNCK_MAX_SIZE = 1000;
     DatagramSocket connSocket = null;
     HashMap<String, Server> remoteServers = null;
     Server localServer = null;
@@ -152,6 +167,9 @@ public class Client implements ClientOperations{
         Socket s = null;
         boolean registered = false;
         serverList = Globals.getServerList();
+        if(serverList == null)
+            return false;
+        
         String serverLine = serverList[server-1];
         serverLine = serverLine.trim();
         String[] serverData = serverLine.split(" ");
@@ -233,8 +251,10 @@ public class Client implements ClientOperations{
             localServer.getOos().flush();
             
             loggedOut = (Boolean)localServer.getOis().readObject();
-            if(loggedOut)
+            if(loggedOut){
                 Globals.setLogged(0);
+                remoteServers.put(localServer.getName(), new Server(localServer));
+            }
             
             
         } catch (IOException e) {
@@ -254,11 +274,11 @@ public class Client implements ClientOperations{
         String[] cnt = null;
        
         try {
-            oos.flush();
-            oos.writeObject(msg);
-            oos.flush();
+            localServer.getOos().flush();
+            localServer.getOos().writeObject(msg);
+            localServer.getOos().flush();
             
-            cnt = (String[])ois.readObject();
+            cnt = (String[])localServer.getOis().readObject();
             
         } catch (IOException e) {
             System.out.println("Error - Writing command! " + e);
@@ -276,11 +296,11 @@ public class Client implements ClientOperations{
         String path = null;
        
         try {
-            oos.flush();
-            oos.writeObject(msg);
-            oos.flush();
+            localServer.getOos().flush();
+            localServer.getOos().writeObject(msg);
+            localServer.getOos().flush();
             
-            path = (String)ois.readObject();
+            path = (String)localServer.getOis().readObject();
             
         } catch (IOException e) {
             System.out.println("Error - Writing command! " + e);
@@ -298,11 +318,11 @@ public class Client implements ClientOperations{
         boolean created = false;
        
         try {
-            oos.flush();
-            oos.writeObject(msg);
-            oos.flush();
+            localServer.getOos().flush();
+            localServer.getOos().writeObject(msg);
+            localServer.getOos().flush();
             
-            created = (Boolean)ois.readObject();
+            created = (Boolean)localServer.getOis().readObject();
             
         } catch (IOException e) {
             System.out.println("Error - Writing command! " + e);
@@ -320,11 +340,11 @@ public class Client implements ClientOperations{
         boolean changed = false;
        
         try {
-            oos.flush();
-            oos.writeObject(msg);
-            oos.flush();
+            localServer.getOos().flush();
+            localServer.getOos().writeObject(msg);
+            localServer.getOos().flush();
             
-            changed = (Boolean)ois.readObject();
+            changed = (Boolean)localServer.getOis().readObject();
             
         } catch (IOException e) {
             System.out.println("Error - Writing command! " + e);
@@ -343,11 +363,11 @@ public class Client implements ClientOperations{
         String msg = "FCNT" + " " + fileName;
         
         try {
-            oos.flush();
-            oos.writeObject(msg);
-            oos.flush();
+            localServer.getOos().flush();
+            localServer.getOos().writeObject(msg);
+            localServer.getOos().flush();
             
-            cnt = (String[])ois.readObject();
+            cnt = (String[])localServer.getOis().readObject();
             
         } catch (IOException e) {
             System.out.println("Error - Writing command! " + e);
@@ -365,11 +385,11 @@ public class Client implements ClientOperations{
         String msg = "FRMV " + fileName;
         boolean removed = false;
          try {
-            oos.flush();
-            oos.writeObject(msg);
-            oos.flush();
+            localServer.getOos().flush();
+            localServer.getOos().writeObject(msg);
+            localServer.getOos().flush();
             
-            removed = (Boolean)ois.readObject();
+            removed = (Boolean)localServer.getOis().readObject();
             
         } catch (IOException e) {
             System.out.println("Error - Writing command! " + e);
@@ -380,6 +400,134 @@ public class Client implements ClientOperations{
         }       
          
          return removed;
+    }
+    
+    @Override
+    public boolean copyFile(String filePath, String server_origin, String server_destination){
+        String msg = "FCPY1 " + filePath;
+        File tempDir = new File("temp");
+        String localFilePath = "";
+        FileOutputStream localFileOutputStream = null;
+        InputStream in = null;
+        byte []fileChunck = new byte[CHUNCK_MAX_SIZE];
+        int nbytes;  
+        ObjectOutputStream out = null;
+        String pattern = Pattern.quote(System.getProperty("file.separator"));
+        String fileName = "";
+        
+        String requestedCanonicalFilePath = null;
+        FileInputStream requestedFileInputStream = null;
+        
+
+        
+            
+        try {
+            
+            if (!server_origin.equals(localServer.getName())) {
+                if (remoteServers.containsKey(server_origin)) {
+                    out = remoteServers.get(server_origin).getOos();
+                    remoteServers.get(server_origin).getSocket().setSoTimeout(TIMEOUT*1000);
+                    in = remoteServers.get(server_origin).getSocket().getInputStream();
+                }
+            } else if (server_origin.equals(localServer.getName())) {
+                out = localServer.getOos();
+                localServer.getSocket().setSoTimeout(TIMEOUT*1000);
+                in = localServer.getSocket().getInputStream();
+            } else {
+                return false;
+            }
+            
+            if(!tempDir.exists())
+                tempDir.mkdir();
+            
+            if(!tempDir.isDirectory())
+                return false;
+                
+            if(!tempDir.canWrite())
+                return false;
+            
+            String[] filePathArray = filePath.trim().split(pattern);
+            fileName = filePathArray[filePathArray.length-1];
+            
+            localFilePath = tempDir.getCanonicalPath()+File.separator+fileName;
+            localFileOutputStream = new FileOutputStream(localFilePath);
+            
+            out.flush();
+            out.writeObject(msg);
+            out.flush();
+            
+            while((nbytes = in.read(fileChunck)) > 0){                    
+                    localFileOutputStream.write(fileChunck, 0, nbytes);
+//                   if(nbytes < CHUNCK_MAX_SIZE)
+//                        break;
+            } 
+            
+            if (!server_destination.equals(localServer.getName())) {
+                if (remoteServers.containsKey(server_destination)) {
+                    out = remoteServers.get(server_destination).getOos();
+                    remoteServers.get(server_destination).getSocket().setSoTimeout(TIMEOUT*1000);
+                }
+            } else if (server_destination.equals(localServer.getName())) {
+                out = localServer.getOos();
+                localServer.getSocket().setSoTimeout(TIMEOUT*1000);
+            } else {
+                return false;
+            }
+            msg = "FCPY2 " + filePath;
+            
+                    requestedCanonicalFilePath = new File(tempDir.getCanonicalPath()+File.separator+fileName).getCanonicalPath();
+
+                    if(!requestedCanonicalFilePath.startsWith(tempDir.getCanonicalPath()+File.separator)){
+                        return false;
+                    }
+                    
+                    requestedFileInputStream = new FileInputStream(requestedCanonicalFilePath);
+                    
+                    out.flush();
+                    out.writeObject(msg);
+                    out.flush();
+                    
+                    while((nbytes = requestedFileInputStream.read(fileChunck))>0){                        
+                        
+                        out.write(fileChunck, 0, nbytes);
+                        out.flush();
+                                                
+                    }     
+            
+            }catch(SocketTimeoutException e){
+                
+            }catch(SocketException e){
+                System.out.println("Error - TCP socket:\n\t"+e);
+                return false;
+            }catch(IOException e){
+                System.out.println("Error - socket / local file:\n\t"+e);
+                return false;
+            }finally{
+            
+            if(localFileOutputStream != null){
+                try{
+                    localFileOutputStream.close();
+                }catch(IOException e){}
+            }
+            if(requestedFileInputStream != null){
+                    try {
+                        requestedFileInputStream.close();
+                    } catch (IOException ex) {}
+                }
+            
+           
+            try {
+                File file;
+                file = new File(tempDir.getCanonicalPath()+File.separator+fileName);
+                Files.deleteIfExists(file.toPath());
+            } catch (IOException ex) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            }
+           
+            
+        }         
+        
+        return true;
     }
     
     public String getLocalIpAddress() {

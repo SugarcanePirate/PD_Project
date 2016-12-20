@@ -78,16 +78,16 @@ public class HeartBeatThread extends Thread{
             try {
                 Thread.sleep(5000);
                 recvbuf = new byte[MAX_SIZE];
-                System.out.println("Sending HearBeat...");
+                //System.out.println("Sending HearBeat...");
                 packetsend = new DatagramPacket(sendbuf, sendbuf.length, addr, PORT_HB);
                 hbSocket.send(packetsend);
-                System.out.println("HearBeat sent...");
+                //System.out.println("HearBeat sent...");
                
                 packetreceive = new DatagramPacket(recvbuf, MAX_SIZE);
                 hbSocket.receive(packetreceive);
                 byteStream = new ByteArrayInputStream(recvbuf);
             is = new ObjectInputStream(byteStream);
-                System.out.println("Server List received...");
+                //System.out.println("Server List received...");
                 
                 
                 
