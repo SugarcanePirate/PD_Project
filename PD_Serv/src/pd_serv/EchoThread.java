@@ -16,6 +16,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -149,9 +150,14 @@ public class EchoThread extends Thread {
 //                   if(nbytes < MAX_CHUNCK_SIZE)
 //                        break;
             }
-        return true;
+        
      }catch (SocketTimeoutException ex) {
             
+            try {
+                client.getSocket().setSoTimeout(0);
+            } catch (SocketException ex1) {
+                Logger.getLogger(EchoThread.class.getName()).log(Level.SEVERE, null, ex1);
+            }
         }  catch (IOException ex) {
             Logger.getLogger(EchoThread.class.getName()).log(Level.SEVERE, null, ex);
         }finally{
@@ -191,19 +197,20 @@ public class EchoThread extends Thread {
                         out.flush();
                                                 
                     }     
-
                      
         }catch(FileNotFoundException e){   //Subclasse de IOException                 
                     System.out.println("Ocorreu a excepcao {" + e + "} ao tentar abrir o ficheiro " + requestedCanonicalFilePath + "!");                   
-                }catch(IOException e){
+                }catch(IOException e)
+                {
                     System.out.println("Ocorreu a excepcao de E/S: \n\t" + e);                       
-                }
+                }finally{
+            
                        if(requestedFileInputStream != null){
                     try {
                         requestedFileInputStream.close();
                     } catch (IOException ex) {}
                 }
-  
+            }
             return true;
      }
      
@@ -212,7 +219,7 @@ public class EchoThread extends Thread {
        
         String[] cmd ;
         File file;
-        
+        boolean mv2=false,mv1=false;
 //        try {
 //            oos = new ObjectOutputStream(socket.getOutputStream());
 //            oos.flush();
@@ -335,8 +342,6 @@ public class EchoThread extends Thread {
                             
                             break;
                             case "FCPY1":
-                            if(!logged)
-                                break;
                                 
                             boolean cp = fileCopyToClient(cmd[1]); 
                             
@@ -347,8 +352,6 @@ public class EchoThread extends Thread {
                             break;
                             
                          case "FCPY2":
-                            if(!logged)
-                                break;
                                 
                             boolean cp2 = fileCopyToServer(cmd[1]); 
                             
@@ -356,6 +359,33 @@ public class EchoThread extends Thread {
                              System.out.println("client copy fail");
                             
                              System.out.println("client copy sucess");
+                            break;
+                            
+                            case "FRMOV1":
+                                
+                            mv1 = fileCopyToClient(cmd[1]); 
+                            
+                            if(!mv1)
+                             System.out.println("client move fail");
+                            boolean moved = (Boolean)ois.readObject();
+                             
+                             if(moved){
+                             file = new File(client.homeDir+File.separator+cmd[1]);
+                            Files.deleteIfExists(file.toPath());
+                              System.out.println("client move sucess");
+                            }
+                            break;
+                            
+                            case "FRMOV2":
+                                
+                             mv2 = fileCopyToServer(cmd[1]); 
+                            
+                            if(!mv2)
+                             System.out.println("client copy fail");
+                            
+                             System.out.println("client copy sucess");
+                            
+                           
                             break;
                             
                     default:
