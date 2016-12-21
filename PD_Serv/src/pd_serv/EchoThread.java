@@ -367,19 +367,23 @@ public class EchoThread extends Thread {
                             
                             if(!mv1)
                              System.out.println("client move fail");
-                            
-                             System.out.println("client move sucess");
+                            boolean moved = (Boolean)ois.readObject();
+                             
+                             if(moved){
+                             file = new File(client.homeDir+File.separator+cmd[1]);
+                            Files.deleteIfExists(file.toPath());
+                              System.out.println("client move sucess");
+                            }
                             break;
                             
                             case "FRMOV2":
                                 
                              mv2 = fileCopyToServer(cmd[1]); 
                             
-                            if(mv2 == true && mv1 == true){
-                             file = new File(client.homeDir+File.separator+cmd[1]);
-                            Files.deleteIfExists(file.toPath());
-                              System.out.println("client move sucess");
-                            }
+                            if(!mv2)
+                             System.out.println("client copy fail");
+                            
+                             System.out.println("client copy sucess");
                             
                            
                             break;
