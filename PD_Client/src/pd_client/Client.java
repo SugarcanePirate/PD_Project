@@ -6,7 +6,6 @@
 package pd_client;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,7 +15,6 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Inet4Address;
@@ -27,9 +25,9 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -167,7 +165,8 @@ public class Client implements ClientOperations{
         Socket s = null;
         boolean registered = false;
         serverList = Globals.getServerList();
-        if(serverList == null)
+        
+        if(serverList == null || serverList[0].equals("No servers..."))
             return false;
         
         String serverLine = serverList[server-1];
@@ -404,7 +403,7 @@ public class Client implements ClientOperations{
     }
     
     @Override
-    public boolean copyFile(String filePath, String server_origin, String server_destination, boolean move){
+    public boolean copyFileRemote(String filePath, String server_origin, String server_destination, boolean move){
         String msg = "";
         File tempDir = new File("temp");
         String localFilePath = "";
@@ -566,6 +565,77 @@ public class Client implements ClientOperations{
             
         }
         return true;
+    }
+    
+    @Override
+    public boolean copyFileLocal(String fileName, String destination){
+        boolean copy = false;
+        String msg = "FLCPY " + fileName + " " + destination;
+        
+         try {
+            localServer.getOos().flush();
+            localServer.getOos().writeObject(msg);
+            localServer.getOos().flush();
+            
+            copy = (Boolean)localServer.getOis().readObject();
+            
+        } catch (IOException e) {
+            System.out.println("Error - Writing command! " + e);
+            return false;
+        } catch (ClassNotFoundException e) {
+            System.out.println("Error - Reading server answer! " + e);
+            return false;
+        }       
+         
+        
+        return copy;
+    }
+    
+    @Override
+    public boolean moveFileLocal(String fileName, String destination){
+        boolean move = false;
+        String msg = "FLMOV " + fileName + " " + destination;
+        
+         try {
+            localServer.getOos().flush();
+            localServer.getOos().writeObject(msg);
+            localServer.getOos().flush();
+            
+            move = (Boolean)localServer.getOis().readObject();
+            
+        } catch (IOException e) {
+            System.out.println("Error - Writing command! " + e);
+            return false;
+        } catch (ClassNotFoundException e) {
+            System.out.println("Error - Reading server answer! " + e);
+            return false;
+        }       
+         
+        
+        return move;
+    }
+    
+    @Override
+    public void exit() {
+        String msg = "EXIT";
+
+        try {
+            if(localServer != null){
+            localServer.getOos().flush();
+            localServer.getOos().writeObject(msg);
+            localServer.getOos().flush();
+            }
+            Iterator it = remoteServers.entrySet().iterator();
+            while (it.hasNext()) {
+                HashMap.Entry pair = (HashMap.Entry) it.next();
+                Server s = (Server) pair.getValue();
+                s.getOos().flush();
+                s.getOos().writeObject(msg);
+                s.getOos().flush();
+            }
+        } catch (IOException e) {
+            System.out.println("Error - Writing command! " + e);
+        }
     }
     
     public String getLocalIpAddress() {

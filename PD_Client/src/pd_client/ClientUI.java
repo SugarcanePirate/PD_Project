@@ -48,23 +48,12 @@ public class ClientUI {
     
     public final static void cls() {
         char c = '\n';
-        int length = 25;
+        int length = 35;
         char[] chars = new char[length];
         Arrays.fill(chars, c);
         System.out.print(String.valueOf(chars));
     }
-    
-    private void pressEnter()
-    { 
-        System.out.println("Press ENTER to continue...");
-        try{
-            System.in.read();
-        }
-        catch(Exception e){
-            System.out.println("Error - " + e);
-        }
-        
-    }
+
     
     public void initHelp(){
         help = new String[] {"{exit} - exit application.",
@@ -78,13 +67,12 @@ public class ClientUI {
                             "{chdir destination_directory} - change working directory.",
                             "{mkdir directory_name} - make a directory.",
                             "{fcnt file_name} - get and list file content.",
-                            "{fcpy file_name destination_directory} - copy file.", //FALTA
-                            "{fmv file_name destination_directory} - move file.", //FALTA
+                            "{fcpy file_name destination_directory} - copy file.",
+                            "{fmv file_name destination_directory} - move file.",
                             "{frcpy file_name origin_server destination_server} - copy file between directories.",
                             "{frmov file_name origin_server destination_server} - move file between directories.",
-                            "{frmv file_name} - remove file/directory.", //FALTA
+                            "{frmv file_name} - remove file/directory.",
                             "{srvls} - shows servers list."};
-                            
     }
     
     
@@ -115,6 +103,9 @@ public class ClientUI {
 //    }
     
     public void printList(String[]  l){
+        if(l == null)
+            return;
+        
         for (String line : l) {
             System.out.println(line);
         }
@@ -136,7 +127,7 @@ public class ClientUI {
         }while(!me.connect());
        
        initHelp();
-//       printList(me.getServerList());
+       printList(me.getServerList());
         
         while(true){
             System.out.print(":> ");
@@ -146,6 +137,7 @@ public class ClientUI {
                     if(commands.length != 1)
                         break;
                    
+                    me.exit();
                     System.exit(0);
                     
                     break;
@@ -197,7 +189,7 @@ public class ClientUI {
                     break;
                     
                 case "OUT":
-                    if(commands.length != 1)
+                    if(commands.length != 1 || Globals.getLogged() != 1)
                         break;
                     
                     if(!me.logout())
@@ -206,7 +198,7 @@ public class ClientUI {
                     break;
                     
                 case "DIRCNT":
-                    if(commands.length != 1)
+                    if(commands.length != 1 || Globals.getLogged() != 1)
                         break;
                     cnt = null;
                     
@@ -218,7 +210,7 @@ public class ClientUI {
                     break;
                     
                 case "DIRPTH":
-                    if(commands.length != 1)
+                    if(commands.length != 1 || Globals.getLogged() != 1)
                         break;
                     
                     System.out.println(me.getDirPath());
@@ -226,7 +218,7 @@ public class ClientUI {
                     break;
                     
                 case "MKDIR":
-                    if(commands.length != 2)
+                    if(commands.length != 2 || Globals.getLogged() != 1)
                         break;
                     
                     if(!me.makeDir(commands[1]))
@@ -235,7 +227,7 @@ public class ClientUI {
                     break;
                     
                 case "CHDIR":
-                    if(commands.length != 2)
+                    if(commands.length != 2 || Globals.getLogged() != 1)
                         break;
                     
                     if(!me.changeDir(commands[1]))
@@ -244,7 +236,7 @@ public class ClientUI {
                     break;
                     
                 case "FCNT":
-                    if(commands.length != 2)
+                    if(commands.length != 2 || Globals.getLogged() != 1)
                         break;
                     
                     cnt = null;
@@ -255,7 +247,7 @@ public class ClientUI {
                     break;
                     
                 case "FRMV":
-                    if(commands.length != 2)
+                    if(commands.length != 2 || Globals.getLogged() != 1)
                         break;
                     
                     if(me.removeFile(commands[1]))
@@ -263,21 +255,39 @@ public class ClientUI {
                     
                     break; 
                 case "FRCPY":
-                    if(commands.length != 4)
+                    if(commands.length != 4 || Globals.getLogged() != 1)
                         break;
                     
-                    if(me.copyFile(commands[1],commands[2],commands[3], false))
+                    if(me.copyFileRemote(commands[1],commands[2],commands[3], false))
                         System.out.println("File transfered successfully.");
                     
                     break; 
                 case "FRMOV":
-                    if(commands.length != 4)
+                    if(commands.length != 4 || Globals.getLogged() != 1)
                         break;
                     
-                    if(me.copyFile(commands[1],commands[2],commands[3], true))
+                    if(me.copyFileRemote(commands[1],commands[2],commands[3], true))
                         System.out.println("File transfered successfully.");
                     
+                    break;
+                    
+                case "FCPY":
+                    if(commands.length != 3 || Globals.getLogged() != 1)
+                        break;
+                    
+                    if(me.copyFileLocal(commands[1],commands[2]))
+                        System.out.println("File copied successfully.");
+                    
                     break; 
+                    
+                case "FMOV":
+                    if(commands.length != 3 || Globals.getLogged() != 1)
+                        break;
+                    
+                    if(me.moveFileLocal(commands[1],commands[2]))
+                        System.out.println("File transfered successfully.");
+                    
+                    break;
                     
                 case "SRVLS":
                     if(commands.length != 1)
