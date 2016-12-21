@@ -335,8 +335,6 @@ public class EchoThread extends Thread {
                             
                             break;
                             case "FCPY1":
-                            if(!logged)
-                                break;
                                 
                             boolean cp = fileCopyToClient(cmd[1]); 
                             
@@ -347,8 +345,6 @@ public class EchoThread extends Thread {
                             break;
                             
                          case "FCPY2":
-                            if(!logged)
-                                break;
                                 
                             boolean cp2 = fileCopyToServer(cmd[1]); 
                             
