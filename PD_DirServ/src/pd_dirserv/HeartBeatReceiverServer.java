@@ -57,8 +57,8 @@ public class HeartBeatReceiverServer extends Thread{
             System.out.println("Heartbeat active!");
 
         }catch(SocketTimeoutException e){
-            System.err.println("Heartbeat Timeout - " +e);
-            
+            System.err.println("Heartbeat Timeout {"+ server.getName() +"}- " +e);
+            Globals.getServerList().remove(server.getName());
             break;
         }catch(IOException e){
             System.out.println("Error receiving message : " + e);
