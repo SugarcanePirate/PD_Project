@@ -415,6 +415,7 @@ public class Client implements ClientOperations{
         ObjectOutputStream out = null;
         String pattern = Pattern.quote(System.getProperty("file.separator"));
         String fileName = "";
+        boolean moveSuccess = false;
         
         String requestedCanonicalFilePath = null;
         FileInputStream requestedFileInputStream = null;
@@ -517,9 +518,9 @@ public class Client implements ClientOperations{
                         os.flush();
                                                 
                     }     
-            
+            moveSuccess = true;
             }catch(SocketTimeoutException e){
-
+               moveSuccess = true;
             }catch(SocketException e){
                 System.out.println("Error - TCP socket:\n\t"+e);
                 return false;
@@ -557,7 +558,7 @@ public class Client implements ClientOperations{
             }
             try {
                 out.flush();
-                out.writeObject(move);
+                out.writeObject(moveSuccess);
                 out.flush();
             } catch (IOException ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
