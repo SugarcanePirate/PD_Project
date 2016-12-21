@@ -7,15 +7,10 @@ package pd_dirserv;
  */
 
 
-import static com.sun.prism.impl.PrismSettings.debug;
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Iterator;
-import static pd_dirserv.HeartBeatReceiverClient.MAX_SIZE;
 
 /**
  *
