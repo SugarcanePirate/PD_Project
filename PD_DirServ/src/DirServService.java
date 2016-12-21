@@ -25,11 +25,13 @@ public class DirServService extends UnicastRemoteObject implements DirServRemote
     
     @Override
     public String[] getServerListRemote() {
-        String[] serverList = null;
+        String[] serverList = new String[Globals.getServerList().size()];
         int i = 0;
-
+        
+        if(Globals.getServerList() == null)
+            return null;
+        
         Iterator it = Globals.getServerList().entrySet().iterator();
-
         while (it.hasNext()) {
             HashMap.Entry pair = (HashMap.Entry) it.next();
 
@@ -38,7 +40,6 @@ public class DirServService extends UnicastRemoteObject implements DirServRemote
 
             i++;
         }
-
         return serverList;
     }
 }
