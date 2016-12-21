@@ -34,7 +34,7 @@ public final static void cls() {
     }
 
     public static void printList(String[]  l){
-        if(l == null)
+        if(l == null || l.length == 0)
             return;
         
         for (String line : l) {
@@ -50,17 +50,20 @@ public final static void cls() {
         if(args.length != 1)
             return;
         
-        objectUrl = args[0];
-        String registration = "rmi://" + objectUrl + "/" + SERVICE_NAME;
+        objectUrl = "192.168.1.81";
+        String registration = "rmi://" + objectUrl + "/DirServService";
         try{
+            
         Remote remote = Naming.lookup(registration);
         
         DirServRemoteInterface service = (DirServRemoteInterface) remote;
         
         while(true){
+            cls();
             serverList = service.getServerListRemote();
             printList(serverList);
             Thread.sleep(1000);
+            
         }
         } catch (NotBoundException ex) {
             System.out.println("Unknow remote service "+ex);
