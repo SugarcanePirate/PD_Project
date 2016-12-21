@@ -149,7 +149,7 @@ public class EchoThread extends Thread {
 //                   if(nbytes < MAX_CHUNCK_SIZE)
 //                        break;
             }
-        return true;
+        
      }catch (SocketTimeoutException ex) {
             
         }  catch (IOException ex) {
@@ -197,13 +197,13 @@ public class EchoThread extends Thread {
                     System.out.println("Ocorreu a excepcao {" + e + "} ao tentar abrir o ficheiro " + requestedCanonicalFilePath + "!");                   
                 }catch(IOException e){
                     System.out.println("Ocorreu a excepcao de E/S: \n\t" + e);                       
-                }
+                }finally{
                        if(requestedFileInputStream != null){
                     try {
                         requestedFileInputStream.close();
                     } catch (IOException ex) {}
                 }
-  
+        }
             return true;
      }
      
