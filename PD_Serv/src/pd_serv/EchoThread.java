@@ -20,6 +20,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -214,6 +215,61 @@ public class EchoThread extends Thread {
             return true;
      }
      
+     public boolean fileLocalCopy(String fileName,String dest){
+          File f1 = new File(client.getCurrentDir()+File.separator+fileName);
+          File f2 = null;
+          
+          if(dest.equals("\\"))
+            f2 = new File(client.getHomeDir()+File.separator+fileName);
+          else
+            f2 = new File(client.getHomeDir()+File.separator+dest+File.separator+fileName);
+         
+        
+                 
+        try {
+            Files.copy(f1.toPath(), f2.toPath(),REPLACE_EXISTING);
+        } catch (IOException ex) {
+            System.out.println("Error - copy file"+ex);
+            return false;
+        }
+        return true;
+     }
+     
+     public boolean fileLocalMove(String fileName,String dest){
+          File f1 = new File(client.getCurrentDir()+File.separator+fileName);
+          File f2 = null;
+          
+          if(dest.equals("\\"))
+            f2 = new File(client.getHomeDir()+File.separator+fileName);
+          else
+            f2 = new File(client.getHomeDir()+File.separator+dest+File.separator+fileName);
+         
+        
+                 
+        try {
+            Files.copy(f1.toPath(), f2.toPath(),REPLACE_EXISTING);
+            Files.deleteIfExists(f1.toPath());
+        } catch (IOException ex) {
+            System.out.println("Error - copy file"+ex);
+            return false;
+        }
+        return true;
+     }
+     
+     public static boolean deleteDirectory(File dir) {
+        if (dir.isDirectory()) {
+            File[] children = dir.listFiles();
+            for (int i = 0; i < children.length; i++) {
+                boolean success = deleteDirectory(children[i]);
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+        return dir.delete();
+     }
+
+     
     public void run() {
        
        
@@ -266,12 +322,13 @@ public class EchoThread extends Thread {
                             oos.flush();
                             System.out.println("Client logged off");
 //                            throw new InterruptedException();
+                                
                         }
                         else{
                             System.out.println("Client isn't logged in");
                         }
                         break;
-                         case "MKDIR":
+                         case "MKDIR":  //funçao de criar diretoria
                         if(!logged)
                             break;
                             oos.flush();
@@ -289,7 +346,7 @@ public class EchoThread extends Thread {
                             System.out.println("Dir changed");
 //                            throw new InterruptedException();
                         break;
-                        case "DIRCNT":
+                        case "DIRCNT": //funçao de listar conteudo de diretoria
                             if(!logged)
                                 break;
                             File dir = new File(client.getCurrentDir());
@@ -300,7 +357,7 @@ public class EchoThread extends Thread {
                              System.out.println("List sent");
                             break;
                             
-                        case "DIRPTH":
+                        case "DIRPTH": //funçao de caminho da diretoria
                             if(!logged)
                                 break;
                             String dirpath = client.getCurrentDir();
@@ -310,7 +367,7 @@ public class EchoThread extends Thread {
                             System.out.println("Dir path sent");
                             break;
                             
-                       case "FRMV":
+                       case "FRMV": //funçao de delete ficheiro
                             if(!logged)
                                 break;
                             boolean deleted = false;
@@ -323,7 +380,7 @@ public class EchoThread extends Thread {
                             System.out.println("File removed");
                             
                             break;
-                        case "FCNT":
+                        case "FCNT":   //funçao de listar conteudo de ficheiro
                             if(!logged)
                                 break;
                                 file = new File(client.getCurrentDir()+File.separator+cmd[1]);
@@ -341,7 +398,7 @@ public class EchoThread extends Thread {
                              System.out.println("Content sent");
                             
                             break;
-                            case "FCPY1":
+                            case "FCPY1": //funçao de copia serv -> cliente
                                 
                             boolean cp = fileCopyToClient(cmd[1]); 
                             
@@ -351,7 +408,7 @@ public class EchoThread extends Thread {
                              System.out.println("client copy sucess");
                             break;
                             
-                         case "FCPY2":
+                         case "FCPY2"://funçao de copia cliente -> serv 
                                 
                             boolean cp2 = fileCopyToServer(cmd[1]); 
                             
@@ -370,7 +427,7 @@ public class EchoThread extends Thread {
                             boolean moved = (Boolean)ois.readObject();
                              
                              if(moved){
-                             file = new File(client.homeDir+File.separator+cmd[1]);
+                             file = new File(client.getHomeDir()+File.separator+cmd[1]);
                             Files.deleteIfExists(file.toPath());
                               System.out.println("client move sucess");
                             }
@@ -387,6 +444,44 @@ public class EchoThread extends Thread {
                             
                            
                             break;
+                        case "FLCPY": //funçao de copia local
+                                if(!logged)
+                                    break;
+                             Boolean flcpy = fileLocalCopy(cmd[1],cmd[2]); 
+                             
+                            oos.flush();
+                            oos.writeObject(flcpy);
+                            oos.flush();
+                             if(!flcpy)
+                                 System.out.println("client copy fail");
+                            
+                                 System.out.println("client copy sucess");
+                           
+                            break;
+                            
+                            case "FLMOV":
+                                if(!logged)
+                                    break;
+                             Boolean flmov = fileLocalMove(cmd[1],cmd[2]); 
+                             
+                            oos.flush();
+                            oos.writeObject(flmov);
+                            oos.flush();
+                             if(!flmov)
+                                 System.out.println("client copy fail");
+                            
+                                 System.out.println("client copy sucess");
+                           
+                            break;
+                            case "EXIT":
+                                    file = new File(client.getHomeDir());
+                                    deleteDirectory(file);
+                                    socket.close();
+                                    clientdata.remove(client.getName());
+                                    client = null;
+                                    oos.close();
+                                    ois.close();
+                                    return;
                             
                     default:
                         break;
