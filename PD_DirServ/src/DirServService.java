@@ -1,4 +1,4 @@
-package pd_dirserv;
+
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -7,15 +7,10 @@ package pd_dirserv;
  */
 
 
-import static com.sun.prism.impl.PrismSettings.debug;
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Iterator;
-import static pd_dirserv.HeartBeatReceiverClient.MAX_SIZE;
 
 /**
  *
@@ -30,11 +25,13 @@ public class DirServService extends UnicastRemoteObject implements DirServRemote
     
     @Override
     public String[] getServerListRemote() {
-        String[] serverList = null;
+        String[] serverList = new String[Globals.getServerList().size()];
         int i = 0;
-
+        
+        if(Globals.getServerList() == null)
+            return null;
+        
         Iterator it = Globals.getServerList().entrySet().iterator();
-
         while (it.hasNext()) {
             HashMap.Entry pair = (HashMap.Entry) it.next();
 
@@ -43,7 +40,6 @@ public class DirServService extends UnicastRemoteObject implements DirServRemote
 
             i++;
         }
-
         return serverList;
     }
 }
