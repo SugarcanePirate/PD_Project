@@ -133,9 +133,16 @@ public class HeartBeatReceiverClient  extends Thread{
             System.out.println("Heartbeat active!");
 
         }catch(SocketTimeoutException e){
-            System.err.println("Heartbeat Timeout - " +e);
-            
-            break;
+            try {
+                System.err.println("Heartbeat Timeout {"+ client.getName() +"}- " +e);
+                oos.close();
+                hbSocket.close();
+                Globals.getClientList().remove(client.getName());
+                
+                break;
+            } catch (IOException ex) {
+                System.out.println("Error closing client " + ex);
+            }
         }catch(IOException e){
             System.out.println("Error receiving message : " + e);
         }
