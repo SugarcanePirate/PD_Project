@@ -80,7 +80,8 @@ public class ClientUI {
                             "{fcnt file_name} - get and list file content.",
                             "{fcpy file_name destination_directory} - copy file.", //FALTA
                             "{fmv file_name destination_directory} - move file.", //FALTA
-                            "{frcpy file_name origin_server destination_server} - move file.", //FALTA
+                            "{frcpy file_name origin_server destination_server} - copy file between directories.",
+                            "{frmov file_name origin_server destination_server} - move file between directories.",
                             "{frmv file_name} - remove file/directory.", //FALTA
                             "{srvls} - shows servers list."};
                             
@@ -265,10 +266,19 @@ public class ClientUI {
                     if(commands.length != 4)
                         break;
                     
-                    if(me.copyFile(commands[1],commands[2],commands[3]))
+                    if(me.copyFile(commands[1],commands[2],commands[3], false))
                         System.out.println("File transfered successfully.");
                     
                     break; 
+                case "FRMOV":
+                    if(commands.length != 4)
+                        break;
+                    
+                    if(me.copyFile(commands[1],commands[2],commands[3], true))
+                        System.out.println("File transfered successfully.");
+                    
+                    break; 
+                    
                 case "SRVLS":
                     if(commands.length != 1)
                         break;

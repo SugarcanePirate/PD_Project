@@ -254,6 +254,7 @@ public class Client implements ClientOperations{
             if(loggedOut){
                 Globals.setLogged(0);
                 remoteServers.put(localServer.getName(), new Server(localServer));
+                localServer = null;
             }
             
             
@@ -403,8 +404,8 @@ public class Client implements ClientOperations{
     }
     
     @Override
-    public boolean copyFile(String filePath, String server_origin, String server_destination){
-        String msg = "FCPY1 " + filePath;
+    public boolean copyFile(String filePath, String server_origin, String server_destination, boolean move){
+        String msg = "";
         File tempDir = new File("temp");
         String localFilePath = "";
         FileOutputStream localFileOutputStream = null;
@@ -417,8 +418,12 @@ public class Client implements ClientOperations{
         
         String requestedCanonicalFilePath = null;
         FileInputStream requestedFileInputStream = null;
+        OutputStream os=null;
         
-
+        if(!move)
+            msg = "FCPY1 " + filePath;
+        else
+            msg = "FRMOV1 " + filePath;
         
             
         try {
@@ -428,7 +433,7 @@ public class Client implements ClientOperations{
                     out = remoteServers.get(server_origin).getOos();
                     remoteServers.get(server_origin).getSocket().setSoTimeout(TIMEOUT*1000);
                     in = remoteServers.get(server_origin).getSocket().getInputStream();
-                }
+            }
             } else if (server_origin.equals(localServer.getName())) {
                 out = localServer.getOos();
                 localServer.getSocket().setSoTimeout(TIMEOUT*1000);
@@ -455,27 +460,46 @@ public class Client implements ClientOperations{
             out.flush();
             out.writeObject(msg);
             out.flush();
-            
+            try{
             while((nbytes = in.read(fileChunck)) > 0){                    
                     localFileOutputStream.write(fileChunck, 0, nbytes);
 //                   if(nbytes < CHUNCK_MAX_SIZE)
 //                        break;
-            } 
-            
+            }
+            }catch(SocketTimeoutException e){
+                                try{
+                if(localServer.getName().equals(server_origin))
+                    localServer.getSocket().setSoTimeout(0);
+                else
+                    remoteServers.get(server_origin).getSocket().setSoTimeout(0);
+                }catch(SocketException ex){
+                System.out.println("Error - TCP socket:\n\t"+e);
+                return false;
+            }
+            }
+
+            filePathArray = filePath.trim().split(pattern);
+            fileName = filePathArray[filePathArray.length-1];
+           
             if (!server_destination.equals(localServer.getName())) {
                 if (remoteServers.containsKey(server_destination)) {
                     out = remoteServers.get(server_destination).getOos();
-                    remoteServers.get(server_destination).getSocket().setSoTimeout(TIMEOUT*1000);
+                    os = remoteServers.get(server_destination).getSocket().getOutputStream();
+//                    remoteServers.get(server_destination).getSocket().setSoTimeout(TIMEOUT*1000);
                 }
             } else if (server_destination.equals(localServer.getName())) {
                 out = localServer.getOos();
-                localServer.getSocket().setSoTimeout(TIMEOUT*1000);
+                os = localServer.getSocket().getOutputStream();
+//                localServer.getSocket().setSoTimeout(TIMEOUT*1000);
             } else {
                 return false;
             }
+            if(!move)
             msg = "FCPY2 " + filePath;
+            else
+            msg = "FRMOV2 " + filePath;
             
-                    requestedCanonicalFilePath = new File(tempDir.getCanonicalPath()+File.separator+fileName).getCanonicalPath();
+                    requestedCanonicalFilePath = new File(tempDir.getCanonicalPath()+File.separator+fileName).getCanonicalPath();//
 
                     if(!requestedCanonicalFilePath.startsWith(tempDir.getCanonicalPath()+File.separator)){
                         return false;
@@ -489,13 +513,13 @@ public class Client implements ClientOperations{
                     
                     while((nbytes = requestedFileInputStream.read(fileChunck))>0){                        
                         
-                        out.write(fileChunck, 0, nbytes);
-                        out.flush();
+                        os.write(fileChunck, 0, nbytes);
+                        os.flush();
                                                 
                     }     
             
             }catch(SocketTimeoutException e){
-                
+
             }catch(SocketException e){
                 System.out.println("Error - TCP socket:\n\t"+e);
                 return false;
@@ -523,10 +547,23 @@ public class Client implements ClientOperations{
             } catch (IOException ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             }
-           
             
-        }         
-        
+            if(move=true){
+            if(localServer.getName().equals(server_origin)){
+                    out = localServer.getOos();
+            }
+            else
+                    out = remoteServers.get(server_origin).getOos();
+            }
+            try {
+                out.flush();
+                out.writeObject(move);
+                out.flush();
+            } catch (IOException ex) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+        }
         return true;
     }
     
