@@ -210,7 +210,7 @@ public class EchoThread extends Thread {
                         requestedFileInputStream.close();
                     } catch (IOException ex) {}
                 }
-  }
+            }
             return true;
      }
      
@@ -219,7 +219,7 @@ public class EchoThread extends Thread {
        
         String[] cmd ;
         File file;
-        
+        boolean mv2=false,mv1=false;
 //        try {
 //            oos = new ObjectOutputStream(socket.getOutputStream());
 //            oos.flush();
@@ -359,6 +359,29 @@ public class EchoThread extends Thread {
                              System.out.println("client copy fail");
                             
                              System.out.println("client copy sucess");
+                            break;
+                            
+                            case "FRMOV1":
+                                
+                            mv1 = fileCopyToClient(cmd[1]); 
+                            
+                            if(!mv1)
+                             System.out.println("client move fail");
+                            
+                             System.out.println("client move sucess");
+                            break;
+                            
+                            case "FRMOV2":
+                                
+                             mv2 = fileCopyToServer(cmd[1]); 
+                            
+                            if(mv2 == true && mv1 == true){
+                             file = new File(client.homeDir+File.separator+cmd[1]);
+                            Files.deleteIfExists(file.toPath());
+                              System.out.println("client move sucess");
+                            }
+                            
+                           
                             break;
                             
                     default:
