@@ -16,6 +16,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -152,6 +153,11 @@ public class EchoThread extends Thread {
         
      }catch (SocketTimeoutException ex) {
             
+            try {
+                client.getSocket().setSoTimeout(0);
+            } catch (SocketException ex1) {
+                Logger.getLogger(EchoThread.class.getName()).log(Level.SEVERE, null, ex1);
+            }
         }  catch (IOException ex) {
             Logger.getLogger(EchoThread.class.getName()).log(Level.SEVERE, null, ex);
         }finally{
@@ -191,19 +197,20 @@ public class EchoThread extends Thread {
                         out.flush();
                                                 
                     }     
-
                      
         }catch(FileNotFoundException e){   //Subclasse de IOException                 
                     System.out.println("Ocorreu a excepcao {" + e + "} ao tentar abrir o ficheiro " + requestedCanonicalFilePath + "!");                   
-                }catch(IOException e){
+                }catch(IOException e)
+                {
                     System.out.println("Ocorreu a excepcao de E/S: \n\t" + e);                       
                 }finally{
+            
                        if(requestedFileInputStream != null){
                     try {
                         requestedFileInputStream.close();
                     } catch (IOException ex) {}
                 }
-        }
+  }
             return true;
      }
      
