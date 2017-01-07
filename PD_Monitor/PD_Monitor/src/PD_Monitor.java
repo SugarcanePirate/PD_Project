@@ -50,7 +50,7 @@ public final static void cls() {
         if(args.length != 1)
             return;
         
-        objectUrl = "192.168.1.81";
+        objectUrl = args[0];
         String registration = "rmi://" + objectUrl + "/DirServService";
         try{
             
