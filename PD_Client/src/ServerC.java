@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package pd_client;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -13,20 +12,20 @@ import java.net.Socket;
  *
  * @author dvchava
  */
-public class Server {
+public class ServerC {
     String name;
     Socket socket;
     ObjectOutputStream oos;
     ObjectInputStream ois;
 
-    public Server(String name, Socket socket, ObjectOutputStream oos, ObjectInputStream ois) {
+    public ServerC(String name, Socket socket, ObjectOutputStream oos, ObjectInputStream ois) {
         this.name = name;
         this.socket = socket;
         this.oos = oos;
         this.ois = ois;
     }
     
-    public Server(Server s) {
+    public ServerC(ServerC s) {
         this.name = s.getName();
         this.socket = s.getSocket();
         this.oos = s.getOos();

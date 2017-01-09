@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package pd_client;
+
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -44,7 +44,7 @@ public class HeartBeatThread extends Thread{
         this.packetsend = null;
         this.packetreceive = null;
         this.addr = null;
-        hbMsg = name + " " + Globals.getLogged();
+        hbMsg = name + " " + GlobalsC.getLogged();
         this.dirServIP = dirServIP;
     }
     
@@ -92,7 +92,7 @@ public class HeartBeatThread extends Thread{
                 
                 
                 serverlist = (String[]) is.readUnshared();
-                Globals.setServerList(serverlist);
+                GlobalsC.setServerList(serverlist);
     
                 
             } catch (InterruptedException e) {

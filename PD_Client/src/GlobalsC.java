@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package pd_client;
+
 
 import java.util.ArrayList;
 
@@ -11,7 +11,7 @@ import java.util.ArrayList;
  *
  * @author David
  */
-public class Globals {
+public class GlobalsC {
     private static String[] serverList;
     private static int logged = 0;
 
@@ -24,10 +24,10 @@ public class Globals {
     }
 
     public static void setLogged(int logged) {
-        Globals.logged = logged;
+        GlobalsC.logged = logged;
     }
     
     public static void setServerList( String[]  serverList ){
-        Globals.serverList = serverList; 
+        GlobalsC.serverList = serverList; 
     }
 }

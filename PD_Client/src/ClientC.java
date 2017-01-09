@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package pd_client;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -36,14 +35,14 @@ import java.util.regex.Pattern;
  *
  * @author dvchava
  */
-public class Client implements ClientOperations{
+public class ClientC implements ClientOperations{
     public static int MAX_SIZE = 5000;
     public static int TIMEOUT = 5;
     
     public static int CHUNCK_MAX_SIZE = 1000;
     DatagramSocket connSocket = null;
-    HashMap<String, Server> remoteServers = null;
-    Server localServer = null;
+    HashMap<String, ServerC> remoteServers = null;
+    ServerC localServer = null;
     String dirServIP;
     int dirServPort;
     ObjectOutputStream oos = null;
@@ -57,7 +56,7 @@ public class Client implements ClientOperations{
     
 
     
-    public Client(String username, String dirServIP, int dirServPort) {
+    public ClientC(String username, String dirServIP, int dirServPort) {
         this.username = username;
         this.dirServIP = dirServIP;
         this.dirServPort = dirServPort;
@@ -164,7 +163,7 @@ public class Client implements ClientOperations{
     public boolean register(String pass, int server){
         Socket s = null;
         boolean registered = false;
-        serverList = Globals.getServerList();
+        serverList = GlobalsC.getServerList();
         
         if(serverList == null || serverList[0].equals("No servers..."))
             return false;
@@ -189,7 +188,7 @@ public class Client implements ClientOperations{
             registered = (Boolean)ois.readObject();
             
             if(registered)
-                remoteServers.put(serverData[0], new Server(serverData[0],s,oos,ois));
+                remoteServers.put(serverData[0], new ServerC(serverData[0],s,oos,ois));
             
         } catch (IOException ex) {
             System.out.println("Error - Connecting to socket (Server: '" + serverIp + "').");
@@ -212,7 +211,7 @@ public class Client implements ClientOperations{
             if(!remoteServers.containsKey(serverName))
                 return false;
             
-            Server server = remoteServers.get(serverName);
+            ServerC server = remoteServers.get(serverName);
             ObjectOutputStream auxOos = server.getOos();
             ObjectInputStream auxOis = server.getOis();
             auxOos.flush();
@@ -221,8 +220,8 @@ public class Client implements ClientOperations{
             
             logged = (Boolean)auxOis.readObject();
             if(logged){
-                Globals.setLogged(1);
-                localServer = new Server(remoteServers.remove(serverName));
+                GlobalsC.setLogged(1);
+                localServer = new ServerC(remoteServers.remove(serverName));
             }
             
         } catch (IOException e) {
@@ -251,8 +250,8 @@ public class Client implements ClientOperations{
             
             loggedOut = (Boolean)localServer.getOis().readObject();
             if(loggedOut){
-                Globals.setLogged(0);
-                remoteServers.put(localServer.getName(), new Server(localServer));
+                GlobalsC.setLogged(0);
+                remoteServers.put(localServer.getName(), new ServerC(localServer));
                 localServer = null;
             }
             
@@ -545,7 +544,7 @@ public class Client implements ClientOperations{
                 file = new File(tempDir.getCanonicalPath()+File.separator+fileName);
                 Files.deleteIfExists(file.toPath());
             } catch (IOException ex) {
-                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(ClientC.class.getName()).log(Level.SEVERE, null, ex);
             }
             
             if(move=true){
@@ -560,7 +559,7 @@ public class Client implements ClientOperations{
                 out.writeObject(moveSuccess);
                 out.flush();
             } catch (IOException ex) {
-                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(ClientC.class.getName()).log(Level.SEVERE, null, ex);
             }
             
         }
@@ -628,7 +627,7 @@ public class Client implements ClientOperations{
             Iterator it = remoteServers.entrySet().iterator();
             while (it.hasNext()) {
                 HashMap.Entry pair = (HashMap.Entry) it.next();
-                Server s = (Server) pair.getValue();
+                ServerC s = (ServerC) pair.getValue();
                 s.getOos().flush();
                 s.getOos().writeObject(msg);
                 s.getOos().flush();

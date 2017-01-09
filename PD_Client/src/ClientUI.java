@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package pd_client;
+
 
 
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import java.util.Scanner;
  * @author dvchava
  */
 public class ClientUI {
-    private Client me;
+    private ClientC me;
     String dirServIP;
     int dirServPort;
     
@@ -80,7 +80,7 @@ public class ClientUI {
         if(connected)
             return;
         
-        me = new Client(username, dirServIP, dirServPort);
+        me = new ClientC(username, dirServIP, dirServPort);
     }
     
     public String[] processCmd(String cmd){
@@ -189,7 +189,7 @@ public class ClientUI {
                     break;
                     
                 case "OUT":
-                    if(commands.length != 1 || Globals.getLogged() != 1)
+                    if(commands.length != 1 || GlobalsC.getLogged() != 1)
                         break;
                     
                     if(!me.logout())
@@ -198,7 +198,7 @@ public class ClientUI {
                     break;
                     
                 case "DIRCNT":
-                    if(commands.length != 1 || Globals.getLogged() != 1)
+                    if(commands.length != 1 || GlobalsC.getLogged() != 1)
                         break;
                     cnt = null;
                     
@@ -210,7 +210,7 @@ public class ClientUI {
                     break;
                     
                 case "DIRPTH":
-                    if(commands.length != 1 || Globals.getLogged() != 1)
+                    if(commands.length != 1 || GlobalsC.getLogged() != 1)
                         break;
                     
                     System.out.println(me.getDirPath());
@@ -218,7 +218,7 @@ public class ClientUI {
                     break;
                     
                 case "MKDIR":
-                    if(commands.length != 2 || Globals.getLogged() != 1)
+                    if(commands.length != 2 || GlobalsC.getLogged() != 1)
                         break;
                     
                     if(!me.makeDir(commands[1]))
@@ -227,7 +227,7 @@ public class ClientUI {
                     break;
                     
                 case "CHDIR":
-                    if(commands.length != 2 || Globals.getLogged() != 1)
+                    if(commands.length != 2 || GlobalsC.getLogged() != 1)
                         break;
                     
                     if(!me.changeDir(commands[1]))
@@ -236,7 +236,7 @@ public class ClientUI {
                     break;
                     
                 case "FCNT":
-                    if(commands.length != 2 || Globals.getLogged() != 1)
+                    if(commands.length != 2 || GlobalsC.getLogged() != 1)
                         break;
                     
                     cnt = null;
@@ -247,7 +247,7 @@ public class ClientUI {
                     break;
                     
                 case "FRMV":
-                    if(commands.length != 2 || Globals.getLogged() != 1)
+                    if(commands.length != 2 || GlobalsC.getLogged() != 1)
                         break;
                     
                     if(me.removeFile(commands[1]))
@@ -255,7 +255,7 @@ public class ClientUI {
                     
                     break; 
                 case "FRCPY":
-                    if(commands.length != 4 || Globals.getLogged() != 1)
+                    if(commands.length != 4 || GlobalsC.getLogged() != 1)
                         break;
                     
                     if(me.copyFileRemote(commands[1],commands[2],commands[3], false))
@@ -263,7 +263,7 @@ public class ClientUI {
                     
                     break; 
                 case "FRMOV":
-                    if(commands.length != 4 || Globals.getLogged() != 1)
+                    if(commands.length != 4 || GlobalsC.getLogged() != 1)
                         break;
                     
                     if(me.copyFileRemote(commands[1],commands[2],commands[3], true))
@@ -272,7 +272,7 @@ public class ClientUI {
                     break;
                     
                 case "FCPY":
-                    if(commands.length != 3 || Globals.getLogged() != 1)
+                    if(commands.length != 3 || GlobalsC.getLogged() != 1)
                         break;
                     
                     if(me.copyFileLocal(commands[1],commands[2]))
@@ -281,7 +281,7 @@ public class ClientUI {
                     break; 
                     
                 case "FMOV":
-                    if(commands.length != 3 || Globals.getLogged() != 1)
+                    if(commands.length != 3 || GlobalsC.getLogged() != 1)
                         break;
                     
                     if(me.moveFileLocal(commands[1],commands[2]))
@@ -293,7 +293,7 @@ public class ClientUI {
                     if(commands.length != 1)
                         break;
                     
-                    printList(Globals.getServerList());
+                    printList(GlobalsC.getServerList());
                     
                     break;    
                     
