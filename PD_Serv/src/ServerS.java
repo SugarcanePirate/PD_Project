@@ -1,4 +1,4 @@
-package pd_serv;
+
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -19,7 +19,7 @@ import java.util.Scanner;
  *
  * @author dvchava
  */
-public class Server {
+public class ServerS {
     public static int MAX_SIZE = 5000;
     DatagramSocket connSocket; //Heart beat Socket
     String name;
@@ -30,7 +30,7 @@ public class Server {
     int dirServPort;
     boolean active = false;
 
-    public Server(DatagramSocket connSocket, int myTCP_PORT, String serverIP, String name, String dirServIP, int dirServPort) {
+    public ServerS(DatagramSocket connSocket, int myTCP_PORT, String serverIP, String name, String dirServIP, int dirServPort) {
         this.connSocket = connSocket;
         this.name = name;
         this.serverIP = serverIP;

@@ -1,4 +1,4 @@
-package pd_serv;
+
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -59,13 +59,13 @@ public class PD_Serv {
             return;
         }
         
-        Server server = new Server(connSocket, myTCP_PORT, myServerIP, name, dirServIP, dirServPort);
+        ServerS server = new ServerS(connSocket, myTCP_PORT, myServerIP, name, dirServIP, dirServPort);
 
         if(server.connect().equals("0"))
             return;
         
         server.setActive(true);
-        tHb = new HeartBeatThread(myTCP_PORT, name, dirServIP, server.getPORT_HB());
+        tHb = new HeartBeatThreadS(myTCP_PORT, name, dirServIP, server.getPORT_HB());
         tHb.start();
         ct = new ClientThreadEchoServer(client,server.getName());
         ct.start();

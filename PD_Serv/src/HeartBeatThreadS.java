@@ -1,4 +1,4 @@
-package pd_serv;
+
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -21,7 +21,7 @@ import java.util.logging.Logger;
  *
  * @author dvchava
  */
-public class HeartBeatThread extends Thread{
+public class HeartBeatThreadS extends Thread{
     public static int MAX_SIZE = 256;
     InetAddress addr;
     DatagramSocket hbSocket;
@@ -30,11 +30,11 @@ public class HeartBeatThread extends Thread{
     String dirServIP;
     String hbMsg;
 
-    public HeartBeatThread(int servListeningPort, String name, String dirServIP, int PORT_HB) {
+    public HeartBeatThreadS(int servListeningPort, String name, String dirServIP, int PORT_HB) {
         try {
             this.hbSocket = new DatagramSocket();
         } catch (SocketException ex) {
-            Logger.getLogger(HeartBeatThread.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(HeartBeatThreadS.class.getName()).log(Level.SEVERE, null, ex);
         }
         this.PORT_HB = PORT_HB;
         this.packet = null;
